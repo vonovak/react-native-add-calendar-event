@@ -1,13 +1,15 @@
+#import <React/RCTBridgeModule.h>
+//#import "AddCalendarEvent.h"
 
-#import "AddCalendarEvent.h"
+//@implementation AddCalendarEvent
 
-@implementation AddCalendarEvent
+@interface RCT_EXTERN_MODULE(AddCalendarEvent, NSObject)
 
-- (dispatch_queue_t)methodQueue
-{
-    return dispatch_get_main_queue();
-}
-RCT_EXPORT_MODULE()
+
+RCT_EXTERN_METHOD(addEvent:
+                  (NSDictionary *) config
+                  resolver: (RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
 
 @end
   
