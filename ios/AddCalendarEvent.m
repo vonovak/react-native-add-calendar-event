@@ -18,10 +18,6 @@ static NSString *const _endDate = @"endDate";
 static NSString *const _allDay = @"allDay";
 static NSString *const _notes = @"notes";
 static NSString *const _url = @"url";
-static NSString *const _alarms = @"alarms";
-static NSString *const _recurrence = @"recurrence";
-static NSString *const _occurrenceDate = @"occurrenceDate";
-static NSString *const _isDetached = @"isDetached";
 
 
 - (EKEventStore *) getEventStoreInstance {
@@ -42,7 +38,7 @@ static NSString *const _isDetached = @"isDetached";
 }
 
 
-RCT_EXPORT_METHOD(addEvent:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.viewController = RCTPresentedViewController();
     self.eventOptions = options;
@@ -65,6 +61,9 @@ RCT_EXPORT_METHOD(addEvent:(NSDictionary *)options resolver:(RCTPromiseResolveBl
     }
     if (options[_endDate]) {
         event.endDate = [RCTConvert NSDate:options[_endDate]];
+    }
+    if (options[_url]) {
+        event.URL = [RCTConvert NSURL:options[_url]];
     }
     
     
