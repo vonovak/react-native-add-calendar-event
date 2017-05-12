@@ -13,5 +13,5 @@
 #import <React/RCTUtils.h>
 
 @interface AddCalendarEvent : NSObject <RCTBridgeModule, EKEventEditViewDelegate>
-- (EKEventStore *) getEventStoreInstance;
+
 @end

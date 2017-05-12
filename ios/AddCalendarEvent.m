@@ -1,4 +1,5 @@
 #import "AddCalendarEvent.h"
+#import "EKEventStoreSingleton.h"
 
 @interface AddCalendarEvent()
 
@@ -24,12 +25,10 @@
 RCT_EXPORT_MODULE()
 
 static NSString *const _id = @"id";
-static NSString *const _calendarId = @"calendarId";
 static NSString *const _title = @"title";
 static NSString *const _location = @"location";
 static NSString *const _startDate = @"startDate";
 static NSString *const _endDate = @"endDate";
-static NSString *const _allDay = @"allDay";
 static NSString *const _notes = @"notes";
 static NSString *const _url = @"url";
 
@@ -37,29 +36,7 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
 
 
 - (EKEventStore *) getEventStoreInstance {
-    if (self.eventStore == nil) {
-        self.eventStore = [[EKEventStore alloc] init];
-    }
-    return self.eventStore;
-}
-
-- (void) resolveAndReset: (id) result {
-    if (self.resolver != nil) {
-        self.resolver(result);
-        [self resetPromises];
-    }
-}
-
-- (void) rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
-    if (self.rejecter != nil) {
-        self.rejecter(code, message, error);
-        [self resetPromises];
-    }
-}
-
-- (void) resetPromises {
-    self.resolver = nil;
-    self.rejecter = nil;
+    return [EKEventStoreSingleton getInstance];
 }
 
 - (id) init {
@@ -138,10 +115,11 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
     if (options[_url]) {
         event.URL = [RCTConvert NSURL:options[_url]];
     }
+    if (options[_notes]) {
+        event.notes = [RCTConvert NSString:options[_notes]];
+    }
     
     addController.event = event;
-
-    
     addController.eventStore = [self getEventStoreInstance];
     addController.editViewDelegate = self;
     [self.viewController presentViewController:addController animated:YES completion:nil];
@@ -163,6 +141,24 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
      }];
 }
 
+- (void) resolveAndReset: (id) result {
+    if (self.resolver != nil) {
+        self.resolver(result);
+        [self resetPromises];
+    }
+}
+
+- (void) rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
+    if (self.rejecter != nil) {
+        self.rejecter(code, message, error);
+        [self resetPromises];
+    }
+}
+
+- (void) resetPromises {
+    self.resolver = nil;
+    self.rejecter = nil;
+}
 
 #pragma mark -
 #pragma mark EKEventEditViewDelegate
@@ -180,12 +176,11 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
              {
                  [weakSelf resolveAndReset: controller.event.calendarItemIdentifier];
              } else {
-                 [weakSelf resolveAndReset:false];
+                 [weakSelf resolveAndReset: @(NO)];
              }
-             
          });
      }];
 }
 
 @end
-  
+
