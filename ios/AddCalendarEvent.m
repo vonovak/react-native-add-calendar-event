@@ -1,5 +1,18 @@
 #import "AddCalendarEvent.h"
 
+@interface AddCalendarEvent()
+
+@property EKEventStore *eventStore;
+@property EKCalendar *defaultCalendar;
+@property UIViewController *viewController;
+@property BOOL calendarAccessGranted;
+@property NSDictionary *eventOptions;
+
+@property (nonatomic) RCTPromiseResolveBlock resolver;
+@property (nonatomic) RCTPromiseRejectBlock rejecter;
+
+@end
+
 
 @implementation AddCalendarEvent
 
@@ -7,6 +20,7 @@
 {
     return dispatch_get_main_queue();
 }
+
 RCT_EXPORT_MODULE()
 
 static NSString *const _id = @"id";
@@ -19,12 +33,33 @@ static NSString *const _allDay = @"allDay";
 static NSString *const _notes = @"notes";
 static NSString *const _url = @"url";
 
+static NSString *const MODULE_NAME= @"AddCalendarEvent";
+
 
 - (EKEventStore *) getEventStoreInstance {
-    if (self.eventStore == nil){
+    if (self.eventStore == nil) {
         self.eventStore = [[EKEventStore alloc] init];
     }
     return self.eventStore;
+}
+
+- (void) resolveAndReset: (id) result {
+    if (self.resolver != nil) {
+        self.resolver(result);
+        [self resetPromises];
+    }
+}
+
+- (void) rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
+    if (self.rejecter != nil) {
+        self.rejecter(code, message, error);
+        [self resetPromises];
+    }
+}
+
+- (void) resetPromises {
+    self.resolver = nil;
+    self.rejecter = nil;
 }
 
 - (id) init {
@@ -32,7 +67,8 @@ static NSString *const _url = @"url";
     if (self != nil) {
         self.eventStore = nil;
         self.calendarAccessGranted = NO;
-        self.defaultCalendar = nil;
+        self.defaultCalendar = nil; // defaultCalendar not used in the module at this point
+        [self resetPromises];
     }
     return self;
 }
@@ -42,10 +78,47 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 {
     self.viewController = RCTPresentedViewController();
     self.eventOptions = options;
+    self.resolver = resolve;
+    self.rejecter = reject;
     [self checkEventStoreAccessForCalendar];
     if (self.calendarAccessGranted) {
         [self showCalendarEventModal];
     }
+}
+
+-(void)checkEventStoreAccessForCalendar
+{
+    EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
+    
+    switch (status)
+    {
+        case EKAuthorizationStatusAuthorized: [self accessGrantedForCalendar];
+            break;
+        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
+            break;
+        case EKAuthorizationStatusDenied:
+        case EKAuthorizationStatusRestricted:
+        {
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning" message:@"Permission was not granted for Calendar"
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                    style:UIAlertActionStyleDefault
+                                                                  handler:^(UIAlertAction * action) {}];
+            [alert addAction:defaultAction];
+            [self.viewController presentViewController:alert animated:YES completion:nil];
+            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+        }
+            break;
+        default:
+            break;
+    }
+}
+
+-(void)accessGrantedForCalendar
+{
+    self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
+    self.calendarAccessGranted = YES;
 }
 
 -(void) showCalendarEventModal {
@@ -66,7 +139,6 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
         event.URL = [RCTConvert NSURL:options[_url]];
     }
     
-    
     addController.event = event;
 
     
@@ -75,62 +147,22 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
     [self.viewController presentViewController:addController animated:YES completion:nil];
 }
 
--(void)accessGrantedForCalendar
-{
-    // Let's get the default calendar associated with our event store
-    self.defaultCalendar = self.eventStore.defaultCalendarForNewEvents;
-    self.calendarAccessGranted = YES;
-}
-
-// Prompt the user for access to their Calendar
 -(void)requestCalendarAccess
 {
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
      {
-         if (granted)
-         {
-             self.calendarAccessGranted = YES;
-             [self showCalendarEventModal];
-//             RootViewController * __weak weakSelf = self;
-//             // Let's ensure that our code will be executed from the main queue
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 // The user has granted access to their Calendar; let's populate our UI with all events occuring in the next 24 hours.
-//                 [weakSelf accessGrantedForCalendar];
-//             });
-         }
+         AddCalendarEvent * __weak weakSelf = self;
+         dispatch_async(dispatch_get_main_queue(), ^{
+             if (granted) {
+                 [weakSelf showCalendarEventModal];
+                 weakSelf.calendarAccessGranted = YES;
+             } else {
+                 [weakSelf rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+             }
+         });
      }];
 }
 
--(void)checkEventStoreAccessForCalendar
-{
-    EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-    
-    switch (status)
-    {
-            // Update our UI if the user has granted access to their Calendar
-        case EKAuthorizationStatusAuthorized: [self accessGrantedForCalendar];
-            break;
-            // Prompt the user for access to Calendar if there is no definitive answer
-        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
-            break;
-            // Display a message if the user has denied or restricted access to Calendar
-        case EKAuthorizationStatusDenied:
-        case EKAuthorizationStatusRestricted:
-        {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Privacy Warning" message:@"Permission was not granted for Calendar"
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            
-            UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
-                                                                    style:UIAlertActionStyleDefault
-                                                                  handler:^(UIAlertAction * action) {}];
-            [alert addAction:defaultAction];
-            [self.viewController presentViewController:alert animated:YES completion:nil];
-        }
-            break;
-        default:
-            break;
-    }
-}
 
 #pragma mark -
 #pragma mark EKEventEditViewDelegate
@@ -139,19 +171,19 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 - (void)eventEditViewController:(EKEventEditViewController *)controller
           didCompleteWithAction:(EKEventEditViewAction)action
 {
-    //AddCalendarEvent * __weak weakSelf = self;
+    AddCalendarEvent * __weak weakSelf = self;
     // Dismiss the modal view controller
     [self.viewController dismissViewControllerAnimated:YES completion:^
      {
-//         if (action != EKEventEditViewActionCanceled)
-//         {
-//             dispatch_async(dispatch_get_main_queue(), ^{
-//                 // Re-fetch all events happening in the next 24 hours
-//                 weakSelf.eventsList = [self fetchEvents];
-//                 // Update the UI with the above events
-//                 [weakSelf.tableView reloadData];
-//             });
-//         }
+         dispatch_async(dispatch_get_main_queue(), ^{
+             if (action != EKEventEditViewActionCanceled)
+             {
+                 [weakSelf resolveAndReset: controller.event.calendarItemIdentifier];
+             } else {
+                 [weakSelf resolveAndReset:false];
+             }
+             
+         });
      }];
 }
 
