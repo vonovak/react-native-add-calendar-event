@@ -1,6 +1,8 @@
 
 # react-native-add-calendar-event
 
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding events to calendar. Through a promise, you can find out if a new event was added, and get its id. See usage section for more information.
+
 ## Getting started
 
 `npm install react-native-add-calendar-event --save`
@@ -57,6 +59,8 @@ AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
 | url        | String           | iOS only  |
 | notes           | String           | The notes (iOS) or description (Android) associated with the event. |
 
+
+More options can be easily added, PRs are welcome!
 
 ### Manual installation
 
