@@ -19,7 +19,7 @@ export const presentNewCalendarEventDialog = options => {
         return _presentCalendarEventDialog(options);
       })
       .catch(() => {
-        return Promise.reject("user didn't grant permissions to access calendar");
+        return Promise.reject("permissionNotGranted");
       });
   } else {
     // ios permissions resolved within the native module
