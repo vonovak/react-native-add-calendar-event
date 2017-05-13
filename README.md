@@ -4,11 +4,12 @@
 ## Getting started
 
 `npm install react-native-add-calendar-event --save`
+
 `yarn add react-native-add-calendar-event`
 
 ### Mostly automatic installation
 
-1. `$ react-native link react-native-add-calendar-event`
+1. `react-native link react-native-add-calendar-event`
 
 2. add `NSCalendarsUsageDescription` key to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
@@ -53,7 +54,8 @@ AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
 | startDate       | Date             |   |
 | endDate         | Date             |   |
 | location        | String           |   |
-| notes           | String           | The notes (ios) or description (android) associated with the event. |
+| url        | String           | iOS only  |
+| notes           | String           | The notes (iOS) or description (Android) associated with the event. |
 
 
 ### Manual installation
