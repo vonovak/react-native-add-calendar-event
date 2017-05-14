@@ -8,8 +8,8 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
 import moment from 'moment';
 
-const utcDateToLocalString = (momentDate: moment): string => {
-  return moment.utc(momentDate).local().format('YYYY-MM-DDTHH:mm:ss.sssZ');
+const utcDateToLocalString = (momentInUTC: moment): string => {
+  return moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ');
 };
 
 export default class EventDemo extends Component {

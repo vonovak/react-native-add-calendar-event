@@ -4,22 +4,20 @@ const { AddCalendarEvent } = NativeModules;
 
 const _presentCalendarEventDialog = eventConfig => {
   return AddCalendarEvent.presentNewEventDialog(eventConfig)
-    .then(eventId => {
-      return Promise.resolve(eventId);
-    })
-    .catch(error => {
-      return Promise.reject(error);
-    });
 };
 
 export const presentNewCalendarEventDialog = options => {
   if (Platform.OS === 'android') {
     return PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR)
-      .then(() => {
-        return _presentCalendarEventDialog(options);
+      .then((granted) => {
+        if(granted === PermissionsAndroid.RESULTS.GRANTED) {
+          return _presentCalendarEventDialog(options);
+        } else {
+          return Promise.reject('permissionNotGranted')
+        }
       })
-      .catch(() => {
-        return Promise.reject("permissionNotGranted");
+      .catch((err) => {
+        return Promise.reject(err);
       });
   } else {
     // ios permissions resolved within the native module
