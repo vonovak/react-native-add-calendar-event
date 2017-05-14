@@ -53,12 +53,14 @@ AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
 | Property        | Value            | Note |
 | :--------------- | :---------------- | :----------- |
 | title           | String             |  |
-| startDate       | Date             |   |
-| endDate         | Date             |   |
+| startDate       | String             |   |
+| endDate         | String             |   |
 | location        | String           |   |
-| url        | String           | iOS only  |
+| url             | String           | iOS only  |
 | notes           | String           | The notes (iOS) or description (Android) associated with the event. |
 
+
+The dates passed to this module are strings. If you use moment, you may get the right format via `moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ')`.
 
 More options can be easily added, PRs are welcome!
 
