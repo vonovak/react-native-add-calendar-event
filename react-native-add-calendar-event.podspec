@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.source       = {
     :git => 'https://github.com/vonovak/react-native-add-calendar-event.git'
   }
-  s.source_files  = '*.{h,m}'
+  s.source_files  = 'ios/*.{h,m}'
 
   s.dependency 'React'
 end
