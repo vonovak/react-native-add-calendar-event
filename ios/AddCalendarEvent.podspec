@@ -11,8 +11,8 @@ Pod::Spec.new do |s|
   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
   s.author             = { "author" => "author@domain.cn" }
   s.platform     = :ios, "7.0"
-  s.source       = { :git => "https://github.com/author/AddCalendarEvent.git", :tag => "master" }
-  s.source_files  = "AddCalendarEvent/**/*.{h,m}"
+  s.source       = { :git => "https://github.com/vonovak/react-native-add-calendar-event.git", :tag => "master" }
+  s.source_files  = "ios/*.{h,m}"
   s.requires_arc = true
 
 
