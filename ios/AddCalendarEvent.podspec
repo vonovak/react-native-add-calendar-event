@@ -6,13 +6,13 @@ Pod::Spec.new do |s|
   s.description  = <<-DESC
                   AddCalendarEvent
                    DESC
-  s.homepage     = "https://github.com/shrutic/react-native-add-calendar-event"
+  s.homepage     = ""
   s.license      = "MIT"
   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
   s.author             = { "author" => "author@domain.cn" }
   s.platform     = :ios, "7.0"
-  s.source       = { :git => "https://github.com/vonovak/react-native-add-calendar-event.git", :tag => "master" }
-  s.source_files  = "ios/*.{h,m}"
+  s.source       = { :git => "https://github.com/author/AddCalendarEvent.git", :tag => "master" }
+  s.source_files  = "AddCalendarEvent/**/*.{h,m}"
   s.requires_arc = true
 
 
