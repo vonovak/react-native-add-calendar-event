@@ -1,6 +1,6 @@
 import { NativeModules, Platform, PermissionsAndroid } from 'react-native';
 
-const { AddCalendarEvent } = NativeModules;
+const AddCalendarEvent = NativeModules.AddCalendarEvent;
 
 const _presentCalendarEventDialog = eventConfig => {
   return AddCalendarEvent.presentNewEventDialog(eventConfig);
