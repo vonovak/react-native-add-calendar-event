@@ -66,7 +66,7 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 -(void)checkEventStoreAccessForCalendar
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-    
+
     switch (status)
     {
         case EKAuthorizationStatusAuthorized: [self accessGrantedForCalendar];
@@ -76,14 +76,6 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
         case EKAuthorizationStatusDenied:
         case EKAuthorizationStatusRestricted:
         {
-            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning" message:@"Permission was not granted for Calendar"
-                                                                    preferredStyle:UIAlertControllerStyleAlert];
-            
-            UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
-                                                                    style:UIAlertActionStyleDefault
-                                                                  handler:^(UIAlertAction * action) {}];
-            [alert addAction:defaultAction];
-            [self.viewController presentViewController:alert animated:YES completion:nil];
             [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
         }
             break;
@@ -101,11 +93,11 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 -(void) showCalendarEventModal {
     EKEventEditViewController *addController = [[EKEventEditViewController alloc] init];
     NSDictionary * options = _eventOptions;
-    
+
     EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
     event.title = [RCTConvert NSString:options[_title]];
     event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
-    
+
     if (options[_startDate]) {
         event.startDate = [RCTConvert NSDate:options[_startDate]];
     }
@@ -118,7 +110,7 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
     if (options[_notes]) {
         event.notes = [RCTConvert NSString:options[_notes]];
     }
-    
+
     addController.event = event;
     addController.eventStore = [self getEventStoreInstance];
     addController.editViewDelegate = self;
