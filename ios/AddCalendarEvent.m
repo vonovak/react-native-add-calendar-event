@@ -3,11 +3,11 @@
 
 @interface AddCalendarEvent()
 
-@property EKEventStore *eventStore;
-@property EKCalendar *defaultCalendar;
-@property UIViewController *viewController;
-@property BOOL calendarAccessGranted;
-@property NSDictionary *eventOptions;
+@property (nonatomic) EKEventStore *eventStore;
+@property (nonatomic) EKCalendar *defaultCalendar;
+@property (nonatomic) UIViewController *viewController;
+@property (nonatomic) BOOL calendarAccessGranted;
+@property (nonatomic) NSDictionary *eventOptions;
 
 @property (nonatomic) RCTPromiseResolveBlock resolver;
 @property (nonatomic) RCTPromiseRejectBlock rejecter;

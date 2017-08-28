@@ -3,7 +3,6 @@
 //  RNAddCalendarEvent
 //
 //  Created by Vojtech Novak on 13/05/2017.
-//  Copyright © 2017 Facebook. All rights reserved.
 //
 
 #ifndef EKEventStoreSingleton_h
