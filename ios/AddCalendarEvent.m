@@ -3,7 +3,6 @@
 
 @interface AddCalendarEvent()
 
-@property (nonatomic) EKEventStore *eventStore;
 @property (nonatomic) EKCalendar *defaultCalendar;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) BOOL calendarAccessGranted;
@@ -42,7 +41,6 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
 - (id) init {
     self = [super init];
     if (self != nil) {
-        self.eventStore = nil;
         self.calendarAccessGranted = NO;
         self.defaultCalendar = nil; // defaultCalendar not used in the module at this point
         [self resetPromises];
