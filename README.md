@@ -68,6 +68,10 @@ The dates passed to this module are strings. If you use moment, you may get the 
 
 More options can be easily added, PRs are welcome!
 
+#### Changing language of dialog
+
+see [StackOverflow answer](https://stackoverflow.com/questions/18425945/xcode-5-and-localization-of-xib-files)
+
 ### Manual installation
 
 

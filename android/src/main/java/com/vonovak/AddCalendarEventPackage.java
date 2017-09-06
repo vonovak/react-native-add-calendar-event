@@ -16,7 +16,6 @@ public class AddCalendarEventPackage implements ReactPackage {
       return Arrays.<NativeModule>asList(new AddCalendarEventModule(reactContext));
     }
 
-    @Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
       return Collections.emptyList();
     }
