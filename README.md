@@ -68,6 +68,8 @@ The dates passed to this module are strings. If you use moment, you may get the 
 
 More options can be easily added, PRs are welcome!
 
+It is reccomended to not rely on the standard `Date` object and instead use some third party library for dealing with dates, such as moment.js because JavaScriptCore (which is used to run react-native on devices) handles dates differently from V8 (which is used when debugging, when the code runs on your computer).
+
 #### Changing language of dialog
 
 see [StackOverflow answer](https://stackoverflow.com/questions/18425945/xcode-5-and-localization-of-xib-files)
