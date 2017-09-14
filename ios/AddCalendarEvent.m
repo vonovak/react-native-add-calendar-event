@@ -38,7 +38,7 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
     return [EKEventStoreSingleton getInstance];
 }
 
-- (id) init {
+- (instancetype) init {
     self = [super init];
     if (self != nil) {
         self.calendarAccessGranted = NO;
@@ -132,14 +132,14 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 }
 
 - (void) resolveAndReset: (id) result {
-    if (self.resolver != nil) {
+    if (self.resolver) {
         self.resolver(result);
         [self resetPromises];
     }
 }
 
 - (void) rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
-    if (self.rejecter != nil) {
+    if (self.rejecter) {
         self.rejecter(code, message, error);
         [self resetPromises];
     }
@@ -158,7 +158,6 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
           didCompleteWithAction:(EKEventEditViewAction)action
 {
     AddCalendarEvent * __weak weakSelf = self;
-    // Dismiss the modal view controller
     [self.viewController dismissViewControllerAnimated:YES completion:^
      {
          dispatch_async(dispatch_get_main_queue(), ^{
