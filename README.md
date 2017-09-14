@@ -64,7 +64,7 @@ AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
 | notes           | String           | The notes (iOS) or description (Android) associated with the event. |
 
 
-The dates passed to this module are strings. If you use moment, you may get the right format via `moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ')`.
+The dates passed to this module are strings. If you use moment, you may get the right format via `moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ')` the string may look eg. like this: `'2017-09-25T08:00:00.000+0200'`.
 
 More options can be easily added, PRs are welcome!
 
