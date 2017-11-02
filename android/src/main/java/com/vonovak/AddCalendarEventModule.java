@@ -19,7 +19,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
     public final String ADD_EVENT_MODULE_NAME = "AddCalendarEvent";
     public final int ADD_EVENT_REQUEST_CODE = 11;
-    public static final String DATE_PARSING_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final String DATE_PARSING_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private Promise promise;
     private Long eventPriorId;
 
