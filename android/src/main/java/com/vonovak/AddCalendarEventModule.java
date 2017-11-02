@@ -14,6 +14,7 @@ import com.facebook.react.bridge.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class AddCalendarEventModule extends ReactContextBaseJavaModule implements ActivityEventListener, LoaderManager.LoaderCallbacks {
 
@@ -42,6 +43,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
     private static long getTimestamp(String dateAsString) throws ParseException {
         SimpleDateFormat datetimeFormatter = new SimpleDateFormat(DATE_PARSING_FORMAT);
+        datetimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         return datetimeFormatter.parse(dateAsString).getTime();
     }
 
