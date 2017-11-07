@@ -61,6 +61,18 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
     }
 }
 
+RCT_EXPORT_METHOD(presentEditCalendarEventDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    self.viewController = RCTPresentedViewController();
+    self.eventOptions = options;
+    self.resolver = resolve;
+    self.rejecter = reject;
+    [self checkEventStoreAccessForCalendar];
+    if (self.calendarAccessGranted) {
+        [self showCalendarEventEditModal];
+    }
+}
+
 -(void)checkEventStoreAccessForCalendar
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
@@ -86,6 +98,18 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
 {
     self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
     self.calendarAccessGranted = YES;
+}
+
+-(void)showCalendarEventEditModal
+{
+    EKEventEditViewController *addController = [[EKEventEditViewController alloc] init];
+    NSDictionary * options = _eventOptions;
+    EKEvent *event = [[self getEventStoreInstance] calendarItemWithIdentifier: [RCTConvert NSString:options[_id]]];
+    
+    addController.event = event;
+    addController.eventStore = [self getEventStoreInstance];
+    addController.editViewDelegate = self;
+    [self.viewController presentViewController:addController animated:YES completion:nil];
 }
 
 -(void) showCalendarEventModal {
