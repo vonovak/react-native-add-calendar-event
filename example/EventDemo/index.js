@@ -8,8 +8,10 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
 import moment from 'moment';
 
-const utcDateToLocalString = (momentInUTC: moment): string => {
-  return moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ');
+const utcDateToString = (momentInUTC: moment): string => {
+  let s = moment.utc(momentInUTC).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+  // console.warn(s);
+  return s;
 };
 
 export default class EventDemo extends Component {
@@ -18,10 +20,14 @@ export default class EventDemo extends Component {
     const nowUTC = moment.utc();
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Event title: {eventTitle}
+        <Text style={styles.welcome}>Event title: {eventTitle}</Text>
+        <Text>
+          date:{' '}
+          {moment
+            .utc(nowUTC)
+            .local()
+            .format('lll')}
         </Text>
-        <Text>date: {moment.utc(nowUTC).local().format('lll')}</Text>
 
         <Button
           onPress={() => {
@@ -36,8 +42,8 @@ export default class EventDemo extends Component {
   static addToCalendar = (title: string, startDateUTC: moment) => {
     const eventConfig = {
       title,
-      startDate: utcDateToLocalString(startDateUTC),
-      endDate: utcDateToLocalString(moment.utc(startDateUTC).add(1, 'hours')),
+      startDate: utcDateToString(startDateUTC),
+      endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
     };
 
     AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)

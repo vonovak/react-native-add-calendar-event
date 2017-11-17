@@ -11,6 +11,8 @@ This package alows you to start an activity (Android) or show a modal window (iO
 
 `npm install react-native-add-calendar-event --save`
 
+or 
+
 `yarn add react-native-add-calendar-event`
 
 ### Mostly automatic installation
@@ -57,14 +59,14 @@ AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
 | Property        | Value            | Note |
 | :--------------- | :---------------- | :----------- |
 | title           | String             |  |
-| startDate       | String             | format: 'YYYY-MM-DDTHH:mm:ss.SSSZZ'  |
-| endDate         | String             | format: 'YYYY-MM-DDTHH:mm:ss.SSSZZ'  |
+| startDate       | String             | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'  |
+| endDate         | String             | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'  |
 | location        | String           |   |
 | url             | String           | iOS only  |
 | notes           | String           | The notes (iOS) or description (Android) associated with the event. |
 
 
-The dates passed to this module are strings. If you use moment, you may get the right format via `moment(momentInUTC).local().format('YYYY-MM-DDTHH:mm:ss.SSSZZ')` the string may look eg. like this: `'2017-09-25T08:00:00.000+0200'`.
+The dates passed to this module are strings. If you use moment, you may get the right format via `momentInUTC.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')` the string may look eg. like this: `'2017-09-25T08:00:00.000Z'`.
 
 More options can be easily added, PRs are welcome!
 
