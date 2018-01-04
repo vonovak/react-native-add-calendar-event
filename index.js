@@ -6,6 +6,10 @@ const _presentCalendarEventDialog = eventConfig => {
   return AddCalendarEvent.presentNewEventDialog(eventConfig);
 };
 
+export const presentEditCalendarEventDialog = eventConfig => {
+  return AddCalendarEvent.presentEditCalendarEventDialog(eventConfig);
+}
+
 export const presentNewCalendarEventDialog = options => {
   if (Platform.OS === 'android') {
     // it seems unnecessary to check first, but if permission is manually disabled
