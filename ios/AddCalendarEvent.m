@@ -23,7 +23,7 @@
 
 RCT_EXPORT_MODULE()
 
-static NSString *const _id = @"id";
+static NSString *const _eventId = @"eventId";
 static NSString *const _title = @"title";
 static NSString *const _location = @"location";
 static NSString *const _startDate = @"startDate";
@@ -34,11 +34,11 @@ static NSString *const _url = @"url";
 static NSString *const MODULE_NAME= @"AddCalendarEvent";
 
 
-- (EKEventStore *) getEventStoreInstance {
+- (EKEventStore *)getEventStoreInstance {
     return [EKEventStoreSingleton getInstance];
 }
 
-- (instancetype) init {
+- (instancetype)init {
     self = [super init];
     if (self != nil) {
         self.calendarAccessGranted = NO;
@@ -49,7 +49,7 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
 }
 
 
-RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.viewController = RCTPresentedViewController();
     self.eventOptions = options;
@@ -88,33 +88,6 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
     self.calendarAccessGranted = YES;
 }
 
--(void) showCalendarEventModal {
-    EKEventEditViewController *addController = [[EKEventEditViewController alloc] init];
-    NSDictionary * options = _eventOptions;
-
-    EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
-    event.title = [RCTConvert NSString:options[_title]];
-    event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
-
-    if (options[_startDate]) {
-        event.startDate = [RCTConvert NSDate:options[_startDate]];
-    }
-    if (options[_endDate]) {
-        event.endDate = [RCTConvert NSDate:options[_endDate]];
-    }
-    if (options[_url]) {
-        event.URL = [RCTConvert NSURL:options[_url]];
-    }
-    if (options[_notes]) {
-        event.notes = [RCTConvert NSString:options[_notes]];
-    }
-
-    addController.event = event;
-    addController.eventStore = [self getEventStoreInstance];
-    addController.editViewDelegate = self;
-    [self.viewController presentViewController:addController animated:YES completion:nil];
-}
-
 -(void)requestCalendarAccess
 {
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
@@ -131,21 +104,60 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
      }];
 }
 
-- (void) resolveAndReset: (id) result {
-    if (self.resolver) {
-        self.resolver(result);
-        [self resetPromises];
+-(void)showCalendarEventModal {
+    EKEventEditViewController *addController = [[EKEventEditViewController alloc] init];
+    
+    EKEvent *event = [self getNewOrEditedEventInstance];
+    if (!event) {
+        [self rejectAndReset:@"eventNotFound" withMessage:@"eventNotFound" withError:nil];
+        return;
+    }
+
+    addController.event = event;
+    addController.eventStore = [self getEventStoreInstance];
+    addController.editViewDelegate = self;
+    [self.viewController presentViewController:addController animated:YES completion:nil];
+}
+
+-(nullable EKEvent*)getNewOrEditedEventInstance {
+
+    if(_eventOptions[_eventId]) {
+        return [[self getEventStoreInstance] eventWithIdentifier: _eventOptions[_eventId]];
+    } else {
+        return [self createNewEventInstance];
     }
 }
 
-- (void) rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
+-(EKEvent*)createNewEventInstance {
+    EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
+    NSDictionary * options = _eventOptions;
+
+    event.title = [RCTConvert NSString:options[_title]];
+    event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
+    
+    if (options[_startDate]) {
+        event.startDate = [RCTConvert NSDate:options[_startDate]];
+    }
+    if (options[_endDate]) {
+        event.endDate = [RCTConvert NSDate:options[_endDate]];
+    }
+    if (options[_url]) {
+        event.URL = [RCTConvert NSURL:options[_url]];
+    }
+    if (options[_notes]) {
+        event.notes = [RCTConvert NSString:options[_notes]];
+    }
+    return event;
+}
+
+- (void)rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
     if (self.rejecter) {
         self.rejecter(code, message, error);
         [self resetPromises];
     }
 }
 
-- (void) resetPromises {
+- (void)resetPromises {
     self.resolver = nil;
     self.rejecter = nil;
 }
@@ -163,12 +175,19 @@ RCT_EXPORT_METHOD(presentNewEventDialog:(NSDictionary *)options resolver:(RCTPro
          dispatch_async(dispatch_get_main_queue(), ^{
              if (action != EKEventEditViewActionCanceled)
              {
-                 [weakSelf resolveAndReset: controller.event.calendarItemIdentifier];
+                 [weakSelf resolveAndReset: controller.event.eventIdentifier];
              } else {
                  [weakSelf resolveAndReset: @(NO)];
              }
          });
      }];
+}
+
+- (void)resolveAndReset: (id) result {
+    if (self.resolver) {
+        self.resolver(result);
+        [self resetPromises];
+    }
 }
 
 @end

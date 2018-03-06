@@ -4,7 +4,7 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
 import moment from 'moment';
 
@@ -15,6 +15,7 @@ const utcDateToString = (momentInUTC: moment): string => {
 };
 
 export default class EventDemo extends Component {
+  state = { text: '' };
   render() {
     const eventTitle = 'Lunch';
     const nowUTC = moment.utc();
@@ -35,6 +36,18 @@ export default class EventDemo extends Component {
           }}
           title="Add to calendar"
         />
+        <TextInput
+          style={{ height: 40, width: '100%', marginTop: 30, marginHorizontal: 15 }}
+          placeholder="enter event id"
+          onChangeText={text => this.setState({ text })}
+          value={this.state.text}
+        />
+        <Button
+          onPress={() => {
+            EventDemo.editCalendarEventWithId(this.state.text);
+          }}
+          title="Edit event with this id"
+        />
       </View>
     );
   }
@@ -46,7 +59,7 @@ export default class EventDemo extends Component {
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
     };
 
-    AddCalendarEvent.presentNewCalendarEventDialog(eventConfig)
+    AddCalendarEvent.presentEventDialog(eventConfig)
       .then(eventId => {
         //handle success (receives event id) or dismissing the modal (receives false)
         if (eventId) {
@@ -54,6 +67,22 @@ export default class EventDemo extends Component {
         } else {
           console.warn('dismissed');
         }
+      })
+      .catch((error: string) => {
+        // handle error such as when user rejected permissions
+        console.warn(error);
+      });
+  };
+
+  static editCalendarEventWithId = (eventId: string) => {
+    const eventConfig = {
+      eventId,
+    };
+
+    AddCalendarEvent.presentEventDialog(eventConfig)
+      .then(eventId => {
+        // eventId is always returned when editing events
+        console.warn(eventId);
       })
       .catch((error: string) => {
         // handle error such as when user rejected permissions
