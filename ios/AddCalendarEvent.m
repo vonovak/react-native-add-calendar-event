@@ -23,7 +23,7 @@
 
 RCT_EXPORT_MODULE()
 
-static NSString *const _id = @"eventId";
+static NSString *const _eventId = @"eventId";
 static NSString *const _title = @"title";
 static NSString *const _location = @"location";
 static NSString *const _startDate = @"startDate";
@@ -93,7 +93,7 @@ RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromis
     
     EKEvent *event = [self getNewOrEditedEventInstance];
     if (!event) {
-        [self rejectAndReset:@"eventNotAvailable" withMessage:@"eventNotAvailable" withError:nil];
+        [self rejectAndReset:@"eventNotFound" withMessage:@"eventNotFound" withError:nil];
         return;
     }
 
@@ -106,8 +106,8 @@ RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromis
 -(nullable EKEvent*)getNewOrEditedEventInstance {
     NSDictionary * options = _eventOptions;
 
-    if(options[_id]) {
-        return [[self getEventStoreInstance] eventWithIdentifier: options[_id]];
+    if(options[_eventId]) {
+        return [[self getEventStoreInstance] eventWithIdentifier: options[_eventId]];
     } else {
         EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
         

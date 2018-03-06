@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -61,7 +62,8 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     }
 
     private void presentEventEditingActivity(ReadableMap config) {
-        long eventID = Long.valueOf(config.getString("eventId"));
+        String eventId = config.getString("eventId");
+        long eventID = Long.valueOf(eventId);
         Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventID);
 
         boolean shouldUseViewIntent = config.getBoolean("useViewIntent");
@@ -76,7 +78,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (activity != null) {
             activity.startActivity(intent);
         }
-        promise.resolve(true);
+        promise.resolve(eventID);
     }
 
     private void presentEventAddingActivity(ReadableMap config) {
@@ -162,9 +164,13 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
         if (cursor != null) {
             cursor.moveToFirst();
-            lastEventId = cursor.getLong(cursor.getColumnIndex("max_id"));
+            int index = cursor.getColumnIndex("max_id");
+            if (index != -1) {
+                lastEventId = cursor.getLong(index);
+            }
             cursor.close();
         }
+
         return lastEventId;
     }
 
