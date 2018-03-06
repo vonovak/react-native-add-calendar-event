@@ -1,9 +1,11 @@
 package com.vonovak;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.app.LoaderManager;
@@ -48,9 +50,36 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void presentNewEventDialog(ReadableMap config, Promise eventPromise) {
+    public void presentEventDialog(ReadableMap config, Promise eventPromise) {
         promise = eventPromise;
 
+        if (config.hasKey("eventId")) {
+            this.presentEventEditingActivity(config);
+        } else {
+            this.presentEventAddingActivity(config);
+        }
+    }
+
+    private void presentEventEditingActivity(ReadableMap config) {
+        long eventID = Long.valueOf(config.getString("eventId"));
+        Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventID);
+
+        boolean shouldUseViewIntent = config.getBoolean("useViewIntent");
+        // ACTION_EDIT does not work  even though it should according to
+        // https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/providers/calendar-provider.html#intent-edit
+        // bug tracker: https://issuetracker.google.com/u/1/issues/36957942?pli=1
+
+        Intent intent = new Intent(shouldUseViewIntent ? Intent.ACTION_VIEW : Intent.ACTION_EDIT)
+                .setData(eventUri);
+
+        Activity activity = getCurrentActivity();
+        if (activity != null) {
+            activity.startActivity(intent);
+        }
+        promise.resolve(true);
+    }
+
+    private void presentEventAddingActivity(ReadableMap config) {
         try {
             final Intent calendarIntent = new Intent(Intent.ACTION_EDIT);
             calendarIntent
@@ -92,10 +121,10 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (requestCode != ADD_EVENT_REQUEST_CODE || promise == null) {
             return;
         }
-        setPostEventIdAndResolvePromise(activity);
+        setPostEventId(activity);
     }
 
-    private void setPostEventIdAndResolvePromise(Activity activity) {
+    private void setPostEventId(Activity activity) {
         if (activity != null) {
             activity.getLoaderManager().initLoader(2, null, this);
         }
@@ -148,7 +177,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (eventPriorId != null && eventPostId != null
                 && eventPostId == eventPriorId + 1) {
             // react native bridge doesn't support passing longs
-            promise.resolve(eventPostId.doubleValue());
+            promise.resolve(String.valueOf(eventPostId));
         } else {
             promise.resolve(false);
         }
