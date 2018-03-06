@@ -81,12 +81,8 @@ export default class EventDemo extends Component {
 
     AddCalendarEvent.presentEventDialog(eventConfig)
       .then(eventId => {
-        //handle success (receives event id) or dismissing the modal (receives false)
-        if (eventId) {
-          console.warn(eventId);
-        } else {
-          console.warn('dismissed');
-        }
+        // eventId is always returned when editing events
+        console.warn(eventId);
       })
       .catch((error: string) => {
         // handle error such as when user rejected permissions

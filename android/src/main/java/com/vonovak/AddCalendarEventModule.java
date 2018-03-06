@@ -66,7 +66,8 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
         boolean shouldUseEditIntent = config.hasKey("useEditIntent") && config.getBoolean("useEditIntent");
         // ACTION_EDIT does not work  even though it should according to
-        // https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/providers/calendar-provider.html#intent-edit
+        // https://developer.android.com/guide/topics/providers/calendar-provider.html#intent-edit
+        // or https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/providers/calendar-provider.html#intent-edit
         // bug tracker: https://issuetracker.google.com/u/1/issues/36957942?pli=1
 
         Intent intent = new Intent(shouldUseEditIntent ? Intent.ACTION_EDIT : Intent.ACTION_VIEW)
