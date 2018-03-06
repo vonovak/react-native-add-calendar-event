@@ -34,10 +34,3 @@ export const presentEventDialog = options => {
     return _presentCalendarEventDialog(options);
   }
 };
-
-export const presentNewEventDialog = options => {
-  console.warn(
-    'presentNewEventDialog is deprecated and will be removed in future release; use `presentEventDialog` instead'
-  );
-  presentEventDialog(options);
-};

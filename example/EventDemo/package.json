@@ -9,7 +9,8 @@
   "dependencies": {
     "moment": "^2.18.1",
     "react": "16.0.0-alpha.6",
-    "react-native": "0.44.0"
+    "react-native": "0.44.0",
+    "react-native-add-calendar-event": "git://github.com/vonovak/react-native-add-calendar-event"
   },
   "devDependencies": {
     "babel-jest": "20.0.1",
