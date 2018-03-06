@@ -37,7 +37,7 @@ export default class EventDemo extends Component {
           title="Add to calendar"
         />
         <TextInput
-          style={{ height: 40, width: 200, marginTop: 30 }}
+          style={{ height: 40, width: '100%', marginTop: 30, marginHorizontal: 15 }}
           placeholder="enter event id"
           onChangeText={text => this.setState({ text })}
           value={this.state.text}

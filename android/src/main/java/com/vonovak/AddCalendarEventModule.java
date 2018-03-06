@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
@@ -62,23 +61,22 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     }
 
     private void presentEventEditingActivity(ReadableMap config) {
-        String eventId = config.getString("eventId");
-        long eventID = Long.valueOf(eventId);
-        Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventID);
+        String eventIdString = config.getString("eventId");
+        Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.valueOf(eventIdString));
 
-        boolean shouldUseViewIntent = config.getBoolean("useViewIntent");
+        boolean shouldUseEditIntent = config.hasKey("useEditIntent") && config.getBoolean("useEditIntent");
         // ACTION_EDIT does not work  even though it should according to
         // https://stuff.mit.edu/afs/sipb/project/android/docs/guide/topics/providers/calendar-provider.html#intent-edit
         // bug tracker: https://issuetracker.google.com/u/1/issues/36957942?pli=1
 
-        Intent intent = new Intent(shouldUseViewIntent ? Intent.ACTION_VIEW : Intent.ACTION_EDIT)
+        Intent intent = new Intent(shouldUseEditIntent ? Intent.ACTION_EDIT : Intent.ACTION_VIEW)
                 .setData(eventUri);
 
         Activity activity = getCurrentActivity();
         if (activity != null) {
             activity.startActivity(intent);
         }
-        promise.resolve(eventID);
+        promise.resolve(eventIdString);
     }
 
     private void presentEventAddingActivity(ReadableMap config) {
@@ -143,8 +141,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     public void onLoadFinished(Loader loader, Object data) {
         Cursor cursor = (Cursor) data;
         if (cursor.isClosed()) {
-            // if the destroyLoader function failed
-            Log.d(ADD_EVENT_MODULE_NAME, "warning: cursor was closed; loader probably wasn't destroyed previously");
+            Log.d(ADD_EVENT_MODULE_NAME, "cursor was closed; loader probably wasn't destroyed previously (destroyLoader() failed)");
             return;
         }
         Long lastEventId = extractLastEventId(cursor);
@@ -183,6 +180,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (eventPriorId != null && eventPostId != null
                 && eventPostId == eventPriorId + 1) {
             // react native bridge doesn't support passing longs
+            // plus we pass String to be consistent with ios
             promise.resolve(String.valueOf(eventPostId));
         } else {
             promise.resolve(false);
@@ -197,7 +195,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (activity != null) {
             activity.getLoaderManager().destroyLoader(loader.getId());
         } else {
-            Log.d(ADD_EVENT_MODULE_NAME, "warning: activity was null when attempting to destroy the loader");
+            Log.d(ADD_EVENT_MODULE_NAME, "activity was null when attempting to destroy the loader");
         }
     }
 
