@@ -26,9 +26,13 @@ or
 
 1.  `react-native link react-native-add-calendar-event`
 
+
 2.  add `NSCalendarsUsageDescription` key to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
 3.  rebuild your project
+
+IOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run pod install. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
+
 
 ## Usage
 
