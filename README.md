@@ -27,7 +27,7 @@ or
 1.  `react-native link react-native-add-calendar-event`
 
 
-2.  add `NSCalendarsUsageDescription` key to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
+2.  add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
 3.  rebuild your project
 
