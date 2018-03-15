@@ -22,6 +22,11 @@
 }
 
 RCT_EXPORT_MODULE()
+    
++ (BOOL)requiresMainQueueSetup
+{
+    return NO;
+}
 
 static NSString *const _eventId = @"eventId";
 static NSString *const _title = @"title";
