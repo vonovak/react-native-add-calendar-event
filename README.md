@@ -6,7 +6,7 @@ This package alows you to start an activity (Android) or show a modal window (iO
 
 ### Changes in 1.0.0
 
-* `presentNewCalendarEventDialog` was renamed to `presentCalendarEventDialog`; the module now has basic support for editing existing events. Pass `eventId` in the options object if you want to edit an event instead of creating it.
+* `presentNewCalendarEventDialog` was renamed to `presentEventDialog`; the module now has basic support for editing existing events. Pass `eventId` in the options object if you want to edit an event instead of creating it.
 
 * the module now returns `eventId` as string on both platforms (it used to return number on Android and string on iOS)
 
@@ -46,7 +46,7 @@ const eventConfig = {
   // and other options
 };
 
-AddCalendarEvent.presentCalendarEventDialog(eventConfig)
+AddCalendarEvent.presentEventDialog(eventConfig)
   .then(eventId => {
     //handle success (receives event id) or dismissing the modal (receives false)
     if (eventId) {
