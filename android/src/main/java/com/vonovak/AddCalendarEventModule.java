@@ -186,8 +186,12 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         if (eventPriorId != null && eventPostId != null
                 && eventPostId == eventPriorId + 1) {
             // react native bridge doesn't support passing longs
-            // plus we pass String to be consistent with ios
-            promise.resolve(String.valueOf(eventPostId));
+            // plus we pass a map of Strings to be consistent with ios
+            WritableMap result = Arguments.createMap();
+            String eventId = String.valueOf(eventPostId);
+            result.putString("eventIdentifier", eventId);
+            result.putString("calendarItemIdentifier", eventId);
+            promise.resolve(result);
         } else {
             promise.resolve(false);
         }

@@ -60,10 +60,10 @@ export default class EventDemo extends Component {
     };
 
     AddCalendarEvent.presentEventDialog(eventConfig)
-      .then(eventId => {
-        //handle success (receives event id) or dismissing the modal (receives false)
-        if (eventId) {
-          console.warn(eventId);
+      .then(eventInfoObject => {
+        //handle success (receives an object) or dismissing the modal (receives false)
+        if (eventInfoObject) {
+          console.warn(JSON.stringify(eventInfoObject));
         } else {
           console.warn('dismissed');
         }

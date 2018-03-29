@@ -125,18 +125,22 @@ RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromis
     [self.viewController presentViewController:addController animated:YES completion:nil];
 }
 
--(nullable EKEvent*)getNewOrEditedEventInstance {
+-(nullable EKEvent *)getNewOrEditedEventInstance {
 
     if(_eventOptions[_eventId]) {
-        return [[self getEventStoreInstance] eventWithIdentifier: _eventOptions[_eventId]];
+        EKEvent *maybeEvent = [[self getEventStoreInstance] eventWithIdentifier: _eventOptions[_eventId]];
+        if (!maybeEvent) {
+            maybeEvent = [[self getEventStoreInstance] calendarItemWithIdentifier: _eventOptions[_eventId]];
+        }
+        return maybeEvent;
     } else {
         return [self createNewEventInstance];
     }
 }
 
--(EKEvent*)createNewEventInstance {
+-(EKEvent *)createNewEventInstance {
     EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
-    NSDictionary * options = _eventOptions;
+    NSDictionary *options = _eventOptions;
 
     event.title = [RCTConvert NSString:options[_title]];
     event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
@@ -159,7 +163,7 @@ RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromis
     return event;
 }
 
-- (void)rejectAndReset: (NSString*) code withMessage: (NSString*) message withError: (NSError*) error {
+- (void)rejectAndReset: (NSString *) code withMessage: (NSString *) message withError: (NSError *) error {
     if (self.rejecter) {
         self.rejecter(code, message, error);
         [self resetPromises];
@@ -184,7 +188,12 @@ RCT_EXPORT_METHOD(presentEventDialog:(NSDictionary *)options resolver:(RCTPromis
          dispatch_async(dispatch_get_main_queue(), ^{
              if (action != EKEventEditViewActionCanceled)
              {
-                 [weakSelf resolveAndReset: controller.event.eventIdentifier];
+                 EKEvent *evt = controller.event;
+                 NSDictionary *result = @{
+                                          @"eventIdentifier":evt.eventIdentifier,
+                                          @"calendarItemIdentifier":evt.calendarItemIdentifier,
+                                          };
+                 [weakSelf resolveAndReset: result];
              } else {
                  [weakSelf resolveAndReset: @(NO)];
              }
