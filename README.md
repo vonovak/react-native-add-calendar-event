@@ -4,16 +4,6 @@ This package alows you to start an activity (Android) or show a modal window (iO
 
 <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
 
-### Changes in 1.0.0
-
-* `presentNewCalendarEventDialog` was renamed to `presentEventDialog`; the module now has basic support for editing existing events. Pass `eventId` in the options object if you want to edit an event instead of creating it.
-
-* the module now returns `eventId` as string on both platforms (it used to return number on Android and string on iOS)
-
-* bugfix: iOS used to return `calendarItemIdentifier`, now returns `eventIdentifier`
-
-* bugfix: added a check that prevents Android from crashing with `CursorIndexOutOfBoundsException`
-
 ## Getting started
 
 `npm install react-native-add-calendar-event --save`
@@ -26,17 +16,15 @@ or
 
 1.  `react-native link react-native-add-calendar-event`
 
-
 2.  add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
 3.  rebuild your project
 
 IOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run pod install. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
 
-
 ## Usage
 
-see the example for a demo app
+See the example folder for a demo app.
 
 ```js
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
@@ -47,10 +35,13 @@ const eventConfig = {
 };
 
 AddCalendarEvent.presentEventDialog(eventConfig)
-  .then(eventId => {
-    //handle success (receives event id) or dismissing the modal (receives false)
-    if (eventId) {
-      console.warn(eventId);
+  .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
+    // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+    // These are two different identifiers on iOS.
+    // On Android, where they are both equal and represent the event id, also strings.
+    // when false is returned, the dialog was dismissed
+    if (eventInfo) {
+      console.warn(JSON.stringify(eventInfo));
     } else {
       console.warn('dismissed');
     }
@@ -59,7 +50,6 @@ AddCalendarEvent.presentEventDialog(eventConfig)
     // handle error such as when user rejected permissions
     console.warn(error);
   });
-};
 ```
 
 ### supported options:

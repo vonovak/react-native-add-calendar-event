@@ -60,10 +60,13 @@ export default class EventDemo extends Component {
     };
 
     AddCalendarEvent.presentEventDialog(eventConfig)
-      .then(eventInfoObject => {
-        //handle success (receives an object) or dismissing the modal (receives false)
-        if (eventInfoObject) {
-          console.warn(JSON.stringify(eventInfoObject));
+      .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
+        // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+        // These are two different identifiers on iOS.
+        // On Android, where they are both equal and represent the event id, also strings.
+        // when false is returned, the dialog was dismissed
+        if (eventInfo) {
+          console.warn(JSON.stringify(eventInfo));
         } else {
           console.warn('dismissed');
         }
