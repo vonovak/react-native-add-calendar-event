@@ -71,6 +71,7 @@ AddCalendarEvent.presentEventDialog(eventConfig)
 | startDate     | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                   |
 | endDate       | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                   |
 | location      | String  |                                                                      |
+| allDay        | boolean |                                                                      |
 | url           | String  | iOS only                                                             |
 | notes         | String  | The notes (iOS) or description (Android) associated with the event.  |
 | useEditIntent | boolean | Android only, and only when editing an event. See description below. |
