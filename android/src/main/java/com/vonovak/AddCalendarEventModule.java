@@ -23,10 +23,10 @@ import java.util.TimeZone;
 public class AddCalendarEventModule extends ReactContextBaseJavaModule implements ActivityEventListener, LoaderManager.LoaderCallbacks {
 
     public final String ADD_EVENT_MODULE_NAME = "AddCalendarEvent";
-    public final int ADD_EVENT_REQUEST_CODE = 11;
+    private final int ADD_EVENT_REQUEST_CODE = 11;
     public static final String DATE_PARSING_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-    private static final int PRIOR_ID = 1;
-    private static final int POST_ID = 2;
+    private static final int PRIOR_RESULT_ID = 1;
+    private static final int POST_RESULT_ID = 2;
     private Promise promise;
     private Long eventPriorId;
 
@@ -122,7 +122,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
     private void setPriorEventId(Activity activity) {
         if (activity != null) {
-            activity.getLoaderManager().initLoader(PRIOR_ID, null, this);
+            activity.getLoaderManager().initLoader(PRIOR_RESULT_ID, null, this);
         }
     }
 
@@ -136,7 +136,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
     private void setPostEventId(Activity activity) {
         if (activity != null) {
-            activity.getLoaderManager().initLoader(POST_ID, null, this);
+            activity.getLoaderManager().initLoader(POST_RESULT_ID, null, this);
         }
     }
 
@@ -157,10 +157,10 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         }
         Long lastEventId = extractLastEventId(cursor);
 
-        if (loader.getId() == PRIOR_ID) {
+        if (loader.getId() == PRIOR_RESULT_ID) {
             eventPriorId = lastEventId;
-        } else if (loader.getId() == POST_ID) {
-            resolvePromise(lastEventId);
+        } else if (loader.getId() == POST_RESULT_ID) {
+            returnResultBackToJS(lastEventId);
         }
 
         destroyLoader(loader);
@@ -183,7 +183,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         return lastEventId;
     }
 
-    private void resolvePromise(@Nullable Long eventPostId) {
+    private void returnResultBackToJS(@Nullable Long eventPostId) {
         if (promise == null) {
             Log.e(ADD_EVENT_MODULE_NAME, "promise is null");
             return;
