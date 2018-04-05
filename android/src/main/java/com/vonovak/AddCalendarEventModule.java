@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.facebook.react.bridge.*;
@@ -18,11 +19,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+
 public class AddCalendarEventModule extends ReactContextBaseJavaModule implements ActivityEventListener, LoaderManager.LoaderCallbacks {
 
     public final String ADD_EVENT_MODULE_NAME = "AddCalendarEvent";
     public final int ADD_EVENT_REQUEST_CODE = 11;
     public static final String DATE_PARSING_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private static final int PRIOR_ID = 1;
+    private static final int POST_ID = 2;
     private Promise promise;
     private Long eventPriorId;
 
@@ -112,13 +116,13 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
             setPriorEventId(getCurrentActivity());
             getReactApplicationContext().startActivityForResult(calendarIntent, ADD_EVENT_REQUEST_CODE, Bundle.EMPTY);
         } catch (ParseException e) {
-            promise.reject(ADD_EVENT_MODULE_NAME, e);
+            rejectPromise(e);
         }
     }
 
     private void setPriorEventId(Activity activity) {
         if (activity != null) {
-            activity.getLoaderManager().initLoader(1, null, this);
+            activity.getLoaderManager().initLoader(PRIOR_ID, null, this);
         }
     }
 
@@ -132,7 +136,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
     private void setPostEventId(Activity activity) {
         if (activity != null) {
-            activity.getLoaderManager().initLoader(2, null, this);
+            activity.getLoaderManager().initLoader(POST_ID, null, this);
         }
     }
 
@@ -148,13 +152,14 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         Cursor cursor = (Cursor) data;
         if (cursor.isClosed()) {
             Log.d(ADD_EVENT_MODULE_NAME, "cursor was closed; loader probably wasn't destroyed previously (destroyLoader() failed)");
+            rejectPromise("cursor was closed");
             return;
         }
         Long lastEventId = extractLastEventId(cursor);
 
-        if (loader.getId() == 1) {
-            this.eventPriorId = lastEventId;
-        } else if (loader.getId() == 2) {
+        if (loader.getId() == PRIOR_ID) {
+            eventPriorId = lastEventId;
+        } else if (loader.getId() == POST_ID) {
             resolvePromise(lastEventId);
         }
 
@@ -162,6 +167,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     }
 
     // inspired by http://stackoverflow.com/questions/9761584/how-can-i-find-out-the-result-of-my-calendar-intent
+    @Nullable
     private Long extractLastEventId(Cursor cursor) {
         Long lastEventId = null;
 
@@ -177,13 +183,15 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         return lastEventId;
     }
 
-    private void resolvePromise(Long eventPostId) {
+    private void resolvePromise(@Nullable Long eventPostId) {
         if (promise == null) {
             Log.e(ADD_EVENT_MODULE_NAME, "promise is null");
             return;
         }
 
-        if (eventPriorId != null && eventPostId != null
+        if (eventPriorId == null && eventPostId == null) {
+            promise.reject(ADD_EVENT_MODULE_NAME, "event prior and post id were null, extractLastEventId probably encountered a problem");
+        } else if (eventPriorId != null && eventPostId != null
                 && eventPostId == eventPriorId + 1) {
             // react native bridge doesn't support passing longs
             // plus we pass a map of Strings to be consistent with ios
@@ -196,6 +204,16 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
             promise.resolve(false);
         }
 
+        resetMembers();
+    }
+
+    private void rejectPromise(Exception e) {
+        promise.reject(ADD_EVENT_MODULE_NAME, e);
+        resetMembers();
+    }
+
+    private void rejectPromise(String e) {
+        promise.reject(ADD_EVENT_MODULE_NAME, e);
         resetMembers();
     }
 
