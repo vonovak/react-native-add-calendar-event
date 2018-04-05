@@ -3,6 +3,7 @@
 * `presentEventDialog` now returns an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
   These are two different identifiers on iOS. On Android, where they are both equal and represent the event id, and are also passed as strings. This improves possible usage with https://github.com/wmcmahan/react-native-calendar-events
 * all-day events are now supported
+* other minor changes
 
 ## 1.0.0
 
