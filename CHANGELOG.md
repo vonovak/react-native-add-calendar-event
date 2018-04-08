@@ -1,3 +1,8 @@
+## 1.1.1
+
+* fix for android crash: https://github.com/vonovak/react-native-add-calendar-event/issues/35
+
+
 ## 1.1.0
 
 * `presentEventDialog` now returns an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
