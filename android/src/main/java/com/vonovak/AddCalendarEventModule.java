@@ -115,7 +115,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
             setPriorEventId(getCurrentActivity());
             getReactApplicationContext().startActivityForResult(calendarIntent, ADD_EVENT_REQUEST_CODE, Bundle.EMPTY);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             rejectPromise(e);
         }
     }
@@ -208,11 +208,14 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     }
 
     private void rejectPromise(Exception e) {
-        promise.reject(ADD_EVENT_MODULE_NAME, e);
-        resetMembers();
+        rejectPromise(e.getMessage());
     }
 
     private void rejectPromise(String e) {
+        if (promise == null) {
+            Log.e(ADD_EVENT_MODULE_NAME, "promise is null");
+            return;
+        }
         promise.reject(ADD_EVENT_MODULE_NAME, e);
         resetMembers();
     }
