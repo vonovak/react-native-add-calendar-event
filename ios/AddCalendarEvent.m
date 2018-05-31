@@ -240,16 +240,22 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     [self.viewController dismissViewControllerAnimated:YES completion:^
      {
          dispatch_async(dispatch_get_main_queue(), ^{
-             if (action != EKEventEditViewActionCanceled)
-             {
+             if (action == EKEventEditViewActionCanceled) {
+                 [weakSelf resolveAndReset: @{
+                                              @"action": CANCELED
+                                              }];
+             } else if (action == EKEventEditViewActionSaved) {
                  EKEvent *evt = controller.event;
                  NSDictionary *result = @{
+                                          @"action": SAVED,
                                           @"eventIdentifier":evt.eventIdentifier,
                                           @"calendarItemIdentifier":evt.calendarItemIdentifier,
                                           };
                  [weakSelf resolveAndReset: result];
-             } else {
-                 [weakSelf resolveAndReset: @(NO)];
+             } else if (action == EKEventEditViewActionDeleted) {
+                 [weakSelf resolveAndReset: @{
+                                              @"action": DELETED
+                                              }];
              }
          });
      }];
@@ -266,19 +272,40 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     [self.viewController dismissViewControllerAnimated:YES completion:^
      {
          dispatch_async(dispatch_get_main_queue(), ^{
-             if (action != EKEventEditViewActionCanceled)
-             {
-                 EKEvent *evt = controller.event;
-                 NSDictionary *result = @{
-                                          @"eventIdentifier":evt.eventIdentifier,
-                                          @"calendarItemIdentifier":evt.calendarItemIdentifier,
-                                          };
-                 [weakSelf resolveAndReset: result];
-             } else {
-                 [weakSelf resolveAndReset: @(NO)];
+             // TODO add constanst for this
+             if (action == EKEventViewActionDeleted) {
+                 [weakSelf resolveAndReset: @{
+                                              @"action": DELETED
+                                              }];
+             } else if (action == EKEventViewActionDone) {
+                 [weakSelf resolveAndReset: @{
+                                              @"action": DONE
+                                              }];
+             } else if (action == EKEventViewActionResponded) {
+                 [weakSelf resolveAndReset: @{
+                                              @"action": RESPONDED
+                                              }];
              }
          });
      }];
+}
+
+static NSString *const DELETED = @"DELETED";
+static NSString *const SAVED = @"SAVED";
+static NSString *const CANCELED = @"CANCELED";
+static NSString *const DONE = @"DONE";
+static NSString *const RESPONDED = @"RESPONDED";
+
+
+- (NSDictionary *)constantsToExport
+{
+    return @{
+             DELETED: DELETED,
+             SAVED: SAVED,
+             CANCELED: CANCELED,
+             DONE: DONE,
+             RESPONDED: RESPONDED
+              };
 }
 
 - (void)resolveAndReset: (id) result {
