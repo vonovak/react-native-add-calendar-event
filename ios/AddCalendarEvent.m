@@ -54,6 +54,57 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
     return self;
 }
 
+RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    self.resolver = resolve;
+    self.rejecter = reject;
+    
+    [self checkEventStoreAccessForCalendar];
+}
+
+-(void)checkEventStoreAccessForCalendar
+{
+    EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
+    
+    switch (status)
+    {
+        case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
+            break;
+        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
+            break;
+        case EKAuthorizationStatusDenied:
+        case EKAuthorizationStatusRestricted:
+        {
+            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+        }
+            break;
+        default:
+            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+            break;
+    }
+}
+
+-(void)markCalendarAccessAsGranted
+{
+    self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
+    self.calendarAccessGranted = YES;
+    [self resolveAndReset: @(YES)];
+}
+
+-(void)requestCalendarAccess
+{
+    [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
+     {
+         AddCalendarEvent * __weak weakSelf = self;
+         dispatch_async(dispatch_get_main_queue(), ^{
+             if (granted) {
+                 [weakSelf markCalendarAccessAsGranted];
+             } else {
+                 [weakSelf rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+             }
+         });
+     }];
+}
 
 RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -62,6 +113,7 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     self.rejecter = reject;
     
     AddCalendarEvent * __weak weakSelf = self;
+    
     void (^showEventCreatingController)(void) = ^{
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = [weakSelf createNewEventInstance];
@@ -70,9 +122,15 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
         [weakSelf presentViewController:controller];
     };
     
-    [self checkEventStoreAccessForCalendar:showEventCreatingController];
+    [self runIfAccessGranted:showEventCreatingController];
+}
+
+-(void)runIfAccessGranted: (void (^)(void))codeBlock
+{
     if (self.calendarAccessGranted) {
-        showEventCreatingController();
+        codeBlock();
+    } else {
+        [self rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
     }
 }
 
@@ -90,13 +148,15 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         //    controller.eventStore = [self getEventStoreInstance];
         //    controller.editViewDelegate = self;
         controller.delegate = weakSelf;
-        [weakSelf presentViewController:controller];
+        controller.allowsEditing = YES;
+//        controller.allowsCalendarPreview = YES;
+        UINavigationController *navBar = [[UINavigationController new] initWithRootViewController:controller];
+//        navBar.navigationBar.tintColor = [UIColor blueColor];
+//        navBar.navigationBar.backgroundColor = [UIColor greenColor];
+        [weakSelf presentViewController:navBar];
     };
     
-    [self checkEventStoreAccessForCalendar:showEventViewingController];
-    if (self.calendarAccessGranted) {
-        showEventViewingController();
-    }
+    [self runIfAccessGranted:showEventViewingController];
 }
 
 RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -112,56 +172,12 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
         controller.event = [weakSelf getEditedEventInstance];
         controller.eventStore = [weakSelf getEventStoreInstance];
         controller.editViewDelegate = weakSelf;
+        controller.navigationBar.tintColor = [UIColor blueColor];
+        controller.navigationBar.backgroundColor = [UIColor greenColor];
         [weakSelf presentViewController:controller];
     };
     
-    [self checkEventStoreAccessForCalendar: showEventEditingController];
-    if (self.calendarAccessGranted) {
-        showEventEditingController();
-    }
-}
-
--(void)checkEventStoreAccessForCalendar: (void (^)(void))callbackBlock
-{
-    EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-
-    switch (status)
-    {
-        case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
-            break;
-        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess:callbackBlock];
-            break;
-        case EKAuthorizationStatusDenied:
-        case EKAuthorizationStatusRestricted:
-        {
-            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
-        }
-            break;
-        default:
-            break;
-    }
-}
-
--(void)markCalendarAccessAsGranted
-{
-    self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
-    self.calendarAccessGranted = YES;
-}
-
--(void)requestCalendarAccess: (void (^)(void))onAccessGranted
-{
-    [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
-     {
-         AddCalendarEvent * __weak weakSelf = self;
-         dispatch_async(dispatch_get_main_queue(), ^{
-             if (granted) {
-                 [weakSelf markCalendarAccessAsGranted];
-                 onAccessGranted();
-             } else {
-                 [weakSelf rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
-             }
-         });
-     }];
+    [self runIfAccessGranted:showEventEditingController];
 }
 
 -(void)presentViewController: (UIViewController *) controller {
@@ -217,7 +233,6 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 #pragma mark -
 #pragma mark EKEventEditViewDelegate
 
-// Overriding EKEventEditViewDelegate method to react to user action
 - (void)eventEditViewController:(EKEventEditViewController *)controller
           didCompleteWithAction:(EKEventEditViewAction)action
 {
@@ -240,10 +255,30 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
      }];
 }
 
+
+#pragma mark -
+#pragma mark EKEventViewDelegate
+
 - (void)eventViewController:(EKEventViewController *)controller
       didCompleteWithAction:(EKEventViewAction)action
 {
-    
+    AddCalendarEvent * __weak weakSelf = self;
+    [self.viewController dismissViewControllerAnimated:YES completion:^
+     {
+         dispatch_async(dispatch_get_main_queue(), ^{
+             if (action != EKEventEditViewActionCanceled)
+             {
+                 EKEvent *evt = controller.event;
+                 NSDictionary *result = @{
+                                          @"eventIdentifier":evt.eventIdentifier,
+                                          @"calendarItemIdentifier":evt.calendarItemIdentifier,
+                                          };
+                 [weakSelf resolveAndReset: result];
+             } else {
+                 [weakSelf resolveAndReset: @(NO)];
+             }
+         });
+     }];
 }
 
 - (void)resolveAndReset: (id) result {

@@ -2,33 +2,48 @@ import { NativeModules, Platform, PermissionsAndroid } from 'react-native';
 
 const AddCalendarEvent = NativeModules.AddCalendarEvent;
 
-const withPermissionsCheck = async toCallWhenPermissionGranted => {
+const withPermissionsCheck = toCallWhenPermissionGranted => {
   if (Platform.OS === 'android') {
+    return withPermissionsCheckAndroid(toCallWhenPermissionGranted);
+  } else {
+    return withPermissionsCheckIOS(toCallWhenPermissionGranted);
+  }
+};
+
+const withPermissionsCheckAndroid = async toCallWhenPermissionGranted => {
+  try {
     // it seems unnecessary to check first, but if permission is manually disabled
     // the PermissionsAndroid.request will return granted (a RN bug?)
-    try {
-      const hasPermission = await PermissionsAndroid.check(
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
+    );
+
+    if (hasPermission === true) {
+      return toCallWhenPermissionGranted();
+    } else {
+      const result = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
       );
-
-      if (hasPermission === true) {
+      if (result === PermissionsAndroid.RESULTS.GRANTED) {
         return toCallWhenPermissionGranted();
       } else {
-        const result = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-        );
-        if (result === PermissionsAndroid.RESULTS.GRANTED) {
-          return toCallWhenPermissionGranted();
-        } else {
-          return Promise.reject('permissionNotGranted');
-        }
+        return Promise.reject('permissionNotGranted');
       }
-    } catch (err) {
-      return Promise.reject(err);
     }
-  } else {
-    // ios permissions resolved within the native module
-    return toCallWhenPermissionGranted();
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
+
+const withPermissionsCheckIOS = async toCallWhenPermissionGranted => {
+  try {
+    const hasPermission = await AddCalendarEvent.requestCalendarPermission();
+
+    if (hasPermission) {
+      return toCallWhenPermissionGranted();
+    }
+  } catch (err) {
+    return Promise.reject(err);
   }
 };
 
