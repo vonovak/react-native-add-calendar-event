@@ -74,7 +74,7 @@ export default class EventDemo extends Component {
         if (eventInfo) {
           console.warn(JSON.stringify(eventInfo));
         } else {
-          console.warn('dismissed');
+          console.warn(eventInfo);
         }
       })
       .catch((error: string) => {

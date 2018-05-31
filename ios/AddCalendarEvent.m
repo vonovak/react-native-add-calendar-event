@@ -60,20 +60,20 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    SEL showEventCreatingDialog = @selector(showEventCreatingController);
-    [self checkEventStoreAccessForCalendar:showEventCreatingDialog];
+    
+    AddCalendarEvent * __weak weakSelf = self;
+    void (^showEventCreatingController)(void) = ^{
+        EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
+        controller.event = [weakSelf createNewEventInstance];
+        controller.eventStore = [weakSelf getEventStoreInstance];
+        controller.editViewDelegate = weakSelf;
+        [weakSelf presentViewController:controller];
+    };
+    
+    [self checkEventStoreAccessForCalendar:showEventCreatingController];
     if (self.calendarAccessGranted) {
-        [self showEventCreatingController];
+        showEventCreatingController();
     }
-}
-
--(void)showEventCreatingController
-{
-    EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
-    controller.event = [self createNewEventInstance];
-    controller.eventStore = [self getEventStoreInstance];
-    controller.editViewDelegate = self;
-    [self showCalendarEventModal:controller];
 }
 
 RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -81,21 +81,22 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    SEL showEventViewingDialog = @selector(showEventViewingController);
-    [self checkEventStoreAccessForCalendar:showEventViewingDialog];
-    if (self.calendarAccessGranted) {
-        [self showEventViewingController];
-    }
-}
+    
+    AddCalendarEvent * __weak weakSelf = self;
 
--(void)showEventViewingController
-{
-    EKEventViewController *controller = [[EKEventViewController alloc] init];
-    controller.event = [self getNewOrEditedEventInstance];
-//    controller.eventStore = [self getEventStoreInstance];
-//    controller.editViewDelegate = self;
-    controller.delegate = self;
-    [self showCalendarEventModal:controller];
+    void (^showEventViewingController)(void) = ^{
+        EKEventViewController *controller = [[EKEventViewController alloc] init];
+        controller.event = [weakSelf getEditedEventInstance];
+        //    controller.eventStore = [self getEventStoreInstance];
+        //    controller.editViewDelegate = self;
+        controller.delegate = weakSelf;
+        [weakSelf presentViewController:controller];
+    };
+    
+    [self checkEventStoreAccessForCalendar:showEventViewingController];
+    if (self.calendarAccessGranted) {
+        showEventViewingController();
+    }
 }
 
 RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -103,31 +104,32 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    SEL showEventEditingController = @selector(showEventEditingController);
+    
+    AddCalendarEvent * __weak weakSelf = self;
+
+    void (^showEventEditingController)(void) = ^{
+        EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
+        controller.event = [weakSelf getEditedEventInstance];
+        controller.eventStore = [weakSelf getEventStoreInstance];
+        controller.editViewDelegate = weakSelf;
+        [weakSelf presentViewController:controller];
+    };
+    
     [self checkEventStoreAccessForCalendar: showEventEditingController];
     if (self.calendarAccessGranted) {
-        [self showEventEditingController];
+        showEventEditingController();
     }
 }
 
--(void)showEventEditingController
-{
-    EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
-    controller.event = [self getNewOrEditedEventInstance];
-    controller.eventStore = [self getEventStoreInstance];
-    controller.editViewDelegate = self;
-    [self showCalendarEventModal:controller];
-}
-
--(void)checkEventStoreAccessForCalendar: (SEL) onAccessPermitted
+-(void)checkEventStoreAccessForCalendar: (void (^)(void))callbackBlock
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
 
     switch (status)
     {
-        case EKAuthorizationStatusAuthorized: [self accessGrantedForCalendar];
+        case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
             break;
-        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess:onAccessPermitted];
+        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess:callbackBlock];
             break;
         case EKAuthorizationStatusDenied:
         case EKAuthorizationStatusRestricted:
@@ -140,21 +142,21 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     }
 }
 
--(void)accessGrantedForCalendar
+-(void)markCalendarAccessAsGranted
 {
     self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
     self.calendarAccessGranted = YES;
 }
 
--(void)requestCalendarAccess: (SEL) onAccessPermitted
+-(void)requestCalendarAccess: (void (^)(void))onAccessGranted
 {
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
      {
          AddCalendarEvent * __weak weakSelf = self;
          dispatch_async(dispatch_get_main_queue(), ^{
              if (granted) {
-                 [weakSelf accessGrantedForCalendar];
-                 [weakSelf performSelector:onAccessPermitted];
+                 [weakSelf markCalendarAccessAsGranted];
+                 onAccessGranted();
              } else {
                  [weakSelf rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
              }
@@ -162,12 +164,12 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
      }];
 }
 
--(void)showCalendarEventModal: (UIViewController *) controller {
+-(void)presentViewController: (UIViewController *) controller {
     self.viewController = RCTPresentedViewController();
     [self.viewController presentViewController:controller animated:YES completion:nil];
 }
 
--(nullable EKEvent *)getNewOrEditedEventInstance {
+-(nullable EKEvent *)getEditedEventInstance {
     EKEvent *maybeEvent = [[self getEventStoreInstance] eventWithIdentifier: _eventOptions[_eventId]];
     if (!maybeEvent) {
         maybeEvent = [[self getEventStoreInstance] calendarItemWithIdentifier: _eventOptions[_eventId]];
