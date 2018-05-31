@@ -48,6 +48,12 @@ export default class EventDemo extends Component {
           }}
           title="Edit event with this id"
         />
+        <Button
+          onPress={() => {
+            EventDemo.showCalendarEventWithId(this.state.text);
+          }}
+          title="Show event with this id"
+        />
       </View>
     );
   }
@@ -59,7 +65,7 @@ export default class EventDemo extends Component {
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
     };
 
-    AddCalendarEvent.presentEventDialog(eventConfig)
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
       .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
         // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
         // These are two different identifiers on iOS.
@@ -82,7 +88,23 @@ export default class EventDemo extends Component {
       eventId,
     };
 
-    AddCalendarEvent.presentEventDialog(eventConfig)
+    AddCalendarEvent.presentEventEditingDialog(eventConfig)
+      .then(eventId => {
+        // eventId is always returned when editing events
+        console.warn(eventId);
+      })
+      .catch((error: string) => {
+        // handle error such as when user rejected permissions
+        console.warn(error);
+      });
+  };
+
+  static showCalendarEventWithId = (eventId: string) => {
+    const eventConfig = {
+      eventId,
+    };
+
+    AddCalendarEvent.presentEventViewingDialog(eventConfig)
       .then(eventId => {
         // eventId is always returned when editing events
         console.warn(eventId);
