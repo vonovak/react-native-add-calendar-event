@@ -63,6 +63,10 @@ export default class EventDemo extends Component {
       title,
       startDate: utcDateToString(startDateUTC),
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
+      navigationBarIOS: {
+        tintColor: 'orange',
+        backgroundColor: 'green',
+      },
     };
 
     AddCalendarEvent.presentEventCreatingDialog(eventConfig)
@@ -89,9 +93,8 @@ export default class EventDemo extends Component {
     };
 
     AddCalendarEvent.presentEventEditingDialog(eventConfig)
-      .then(eventId => {
-        // eventId is always returned when editing events
-        console.warn(eventId);
+      .then(eventInfo => {
+        console.warn(JSON.stringify(eventInfo));
       })
       .catch((error: string) => {
         // handle error such as when user rejected permissions
@@ -102,12 +105,17 @@ export default class EventDemo extends Component {
   static showCalendarEventWithId = (eventId: string) => {
     const eventConfig = {
       eventId,
+      allowsEditing: true,
+      allowsCalendarPreview: true,
+      navigationBarIOS: {
+        tintColor: 'orange',
+        backgroundColor: 'green',
+      },
     };
 
     AddCalendarEvent.presentEventViewingDialog(eventConfig)
-      .then(eventId => {
-        // eventId is always returned when editing events
-        console.warn(eventId);
+      .then(eventInfo => {
+        console.warn(JSON.stringify(eventInfo));
       })
       .catch((error: string) => {
         // handle error such as when user rejected permissions

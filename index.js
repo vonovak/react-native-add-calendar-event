@@ -1,4 +1,4 @@
-import { NativeModules, Platform, PermissionsAndroid } from 'react-native';
+import { NativeModules, Platform, PermissionsAndroid, processColor } from 'react-native';
 
 const AddCalendarEvent = NativeModules.AddCalendarEvent;
 
@@ -47,20 +47,31 @@ const withPermissionsCheckIOS = async toCallWhenPermissionGranted => {
   }
 };
 
-// needs event id
+const processColorsIOS = config => {
+  if (Platform.OS === 'android' || !config) {
+    return config;
+  }
+  const { navigationBarIOS } = config;
+  if (navigationBarIOS) {
+    const { tintColor, backgroundColor, barTintColor } = navigationBarIOS;
+    navigationBarIOS.tintColor = tintColor && processColor(tintColor);
+    navigationBarIOS.backgroundColor = backgroundColor && processColor(backgroundColor);
+    navigationBarIOS.barTintColor = barTintColor && processColor(barTintColor);
+  }
+  return config;
+};
+
 export const presentEventViewingDialog = options => {
-  const toCall = () => AddCalendarEvent.presentEventViewingDialog(options);
+  const toCall = () => AddCalendarEvent.presentEventViewingDialog(processColorsIOS(options));
   return withPermissionsCheck(toCall);
 };
 
-// needs event id and optionally new event details?
 export const presentEventEditingDialog = options => {
-  const toCall = () => AddCalendarEvent.presentEventEditingDialog(options);
+  const toCall = () => AddCalendarEvent.presentEventEditingDialog(processColorsIOS(options));
   return withPermissionsCheck(toCall);
 };
 
-// needs event just event details
 export const presentEventCreatingDialog = options => {
-  const toCall = () => AddCalendarEvent.presentEventCreatingDialog(options);
+  const toCall = () => AddCalendarEvent.presentEventCreatingDialog(processColorsIOS(options));
   return withPermissionsCheck(toCall);
 };

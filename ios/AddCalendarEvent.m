@@ -28,6 +28,23 @@ RCT_EXPORT_MODULE()
     return NO;
 }
 
+static NSString *const DELETED = @"DELETED";
+static NSString *const SAVED = @"SAVED";
+static NSString *const CANCELED = @"CANCELED";
+static NSString *const DONE = @"DONE";
+static NSString *const RESPONDED = @"RESPONDED";
+
+- (NSDictionary *)constantsToExport
+{
+    return @{
+             DELETED: DELETED,
+             SAVED: SAVED,
+             CANCELED: CANCELED,
+             DONE: DONE,
+             RESPONDED: RESPONDED
+             };
+}
+
 static NSString *const _eventId = @"eventId";
 static NSString *const _title = @"title";
 static NSString *const _location = @"location";
@@ -62,7 +79,7 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
     [self checkEventStoreAccessForCalendar];
 }
 
--(void)checkEventStoreAccessForCalendar
+- (void)checkEventStoreAccessForCalendar
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     
@@ -75,23 +92,23 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
         case EKAuthorizationStatusDenied:
         case EKAuthorizationStatusRestricted:
         {
-            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+            [self rejectPromise:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
         }
             break;
         default:
-            [self rejectAndReset:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+            [self rejectPromise:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
             break;
     }
 }
 
--(void)markCalendarAccessAsGranted
+- (void)markCalendarAccessAsGranted
 {
     self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
     self.calendarAccessGranted = YES;
-    [self resolveAndReset: @(YES)];
+    [self resolvePromise: @(YES)];
 }
 
--(void)requestCalendarAccess
+- (void)requestCalendarAccess
 {
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
      {
@@ -100,11 +117,14 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
              if (granted) {
                  [weakSelf markCalendarAccessAsGranted];
              } else {
-                 [weakSelf rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+                 [weakSelf rejectPromise:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
              }
          });
      }];
 }
+
+#pragma mark -
+#pragma mark Dialog methods
 
 RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -114,23 +134,27 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     
     AddCalendarEvent * __weak weakSelf = self;
     
-    void (^showEventCreatingController)(void) = ^{
+    void (^showEventCreatingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
-        controller.event = [weakSelf createNewEventInstance];
+        controller.event = event;
         controller.eventStore = [weakSelf getEventStoreInstance];
         controller.editViewDelegate = weakSelf;
+        [weakSelf assignNavbarColorsTo:controller.navigationBar];
         [weakSelf presentViewController:controller];
     };
     
-    [self runIfAccessGranted:showEventCreatingController];
+    [self runIfAccessGranted:showEventCreatingController withEvent:[weakSelf createNewEventInstance]];
 }
 
--(void)runIfAccessGranted: (void (^)(void))codeBlock
+- (void)runIfAccessGranted: (void (^)(EKEvent *))codeBlock withEvent: (EKEvent *) event
 {
-    if (self.calendarAccessGranted) {
-        codeBlock();
+    if (self.calendarAccessGranted && event) {
+        codeBlock(event);
+    } else if (self.calendarAccessGranted && !event) {
+        NSString *evtId = self.eventOptions[_eventId];
+        [self rejectPromise:@"eventNotFound" withMessage:[NSString stringWithFormat:@"event with id %@ not found", evtId] withError:nil];
     } else {
-        [self rejectAndReset:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+        [self rejectPromise:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
     }
 }
 
@@ -142,21 +166,43 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
     
     AddCalendarEvent * __weak weakSelf = self;
 
-    void (^showEventViewingController)(void) = ^{
+    void (^showEventViewingController)(EKEvent *) = ^(EKEvent * event){
         EKEventViewController *controller = [[EKEventViewController alloc] init];
-        controller.event = [weakSelf getEditedEventInstance];
-        //    controller.eventStore = [self getEventStoreInstance];
-        //    controller.editViewDelegate = self;
+        controller.event = event;
         controller.delegate = weakSelf;
-        controller.allowsEditing = YES;
-//        controller.allowsCalendarPreview = YES;
+        if (options[@"allowsEditing"]) {
+            controller.allowsEditing = [RCTConvert BOOL:options[@"allowsEditing"]];
+        }
+        if (options[@"allowsCalendarPreview"]) {
+            controller.allowsCalendarPreview = [RCTConvert BOOL:options[@"allowsCalendarPreview"]];
+        }
+        
         UINavigationController *navBar = [[UINavigationController new] initWithRootViewController:controller];
-//        navBar.navigationBar.tintColor = [UIColor blueColor];
-//        navBar.navigationBar.backgroundColor = [UIColor greenColor];
+        [weakSelf assignNavbarColorsTo:navBar.navigationBar];
         [weakSelf presentViewController:navBar];
     };
     
-    [self runIfAccessGranted:showEventViewingController];
+    [self runIfAccessGranted:showEventViewingController withEvent:[weakSelf getEditedEventInstance]];
+}
+
+-(void)assignNavbarColorsTo: (UINavigationBar *) navigationBar
+{
+    NSDictionary * navbarOptions = _eventOptions[@"navigationBarIOS"];
+
+    if (navbarOptions) {
+        if (navbarOptions[@"tintColor"]) {
+            navigationBar.tintColor = [RCTConvert UIColor:navbarOptions[@"tintColor"]];
+        }
+        if (navbarOptions[@"backgroundColor"]) {
+            navigationBar.backgroundColor = [RCTConvert UIColor:navbarOptions[@"backgroundColor"]];
+        }
+        if (navbarOptions[@"translucent"]) {
+            navigationBar.translucent = [RCTConvert BOOL:navbarOptions[@"translucent"]];
+        }
+        if (navbarOptions[@"barTintColor"]) {
+            navigationBar.barTintColor = [RCTConvert UIColor:navbarOptions[@"barTintColor"]];
+        }
+    }
 }
 
 RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -167,25 +213,24 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     
     AddCalendarEvent * __weak weakSelf = self;
 
-    void (^showEventEditingController)(void) = ^{
+    void (^showEventEditingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
-        controller.event = [weakSelf getEditedEventInstance];
+        controller.event = event;
         controller.eventStore = [weakSelf getEventStoreInstance];
         controller.editViewDelegate = weakSelf;
-        controller.navigationBar.tintColor = [UIColor blueColor];
-        controller.navigationBar.backgroundColor = [UIColor greenColor];
+        [weakSelf assignNavbarColorsTo:controller.navigationBar];
         [weakSelf presentViewController:controller];
     };
     
-    [self runIfAccessGranted:showEventEditingController];
+    [self runIfAccessGranted:showEventEditingController withEvent:[weakSelf getEditedEventInstance]];
 }
 
--(void)presentViewController: (UIViewController *) controller {
+- (void)presentViewController: (UIViewController *) controller {
     self.viewController = RCTPresentedViewController();
     [self.viewController presentViewController:controller animated:YES completion:nil];
 }
 
--(nullable EKEvent *)getEditedEventInstance {
+- (nullable EKEvent *)getEditedEventInstance {
     EKEvent *maybeEvent = [[self getEventStoreInstance] eventWithIdentifier: _eventOptions[_eventId]];
     if (!maybeEvent) {
         maybeEvent = [[self getEventStoreInstance] calendarItemWithIdentifier: _eventOptions[_eventId]];
@@ -193,7 +238,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     return maybeEvent;
 }
 
--(EKEvent *)createNewEventInstance {
+- (EKEvent *)createNewEventInstance {
     EKEvent *event = [EKEvent eventWithEventStore: [self getEventStoreInstance]];
     NSDictionary *options = _eventOptions;
 
@@ -218,7 +263,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     return event;
 }
 
-- (void)rejectAndReset: (NSString *) code withMessage: (NSString *) message withError: (NSError *) error {
+- (void)rejectPromise: (NSString *) code withMessage: (NSString *) message withError: (NSError *) error {
     if (self.rejecter) {
         self.rejecter(code, message, error);
         [self resetPromises];
@@ -241,21 +286,16 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
      {
          dispatch_async(dispatch_get_main_queue(), ^{
              if (action == EKEventEditViewActionCanceled) {
-                 [weakSelf resolveAndReset: @{
-                                              @"action": CANCELED
-                                              }];
+                 [weakSelf resolveWithAction:CANCELED];
              } else if (action == EKEventEditViewActionSaved) {
                  EKEvent *evt = controller.event;
-                 NSDictionary *result = @{
-                                          @"action": SAVED,
+                 NSDictionary *params = @{
                                           @"eventIdentifier":evt.eventIdentifier,
                                           @"calendarItemIdentifier":evt.calendarItemIdentifier,
                                           };
-                 [weakSelf resolveAndReset: result];
+                 [weakSelf resolveWithAction:SAVED andParams:params];
              } else if (action == EKEventEditViewActionDeleted) {
-                 [weakSelf resolveAndReset: @{
-                                              @"action": DELETED
-                                              }];
+                 [weakSelf resolveWithAction:DELETED];
              }
          });
      }];
@@ -272,43 +312,30 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     [self.viewController dismissViewControllerAnimated:YES completion:^
      {
          dispatch_async(dispatch_get_main_queue(), ^{
-             // TODO add constanst for this
              if (action == EKEventViewActionDeleted) {
-                 [weakSelf resolveAndReset: @{
-                                              @"action": DELETED
-                                              }];
+                 [weakSelf resolveWithAction:DELETED];
              } else if (action == EKEventViewActionDone) {
-                 [weakSelf resolveAndReset: @{
-                                              @"action": DONE
-                                              }];
+                 [weakSelf resolveWithAction:DONE];
              } else if (action == EKEventViewActionResponded) {
-                 [weakSelf resolveAndReset: @{
-                                              @"action": RESPONDED
-                                              }];
+                 [weakSelf resolveWithAction:RESPONDED];
              }
          });
      }];
 }
 
-static NSString *const DELETED = @"DELETED";
-static NSString *const SAVED = @"SAVED";
-static NSString *const CANCELED = @"CANCELED";
-static NSString *const DONE = @"DONE";
-static NSString *const RESPONDED = @"RESPONDED";
-
-
-- (NSDictionary *)constantsToExport
-{
-    return @{
-             DELETED: DELETED,
-             SAVED: SAVED,
-             CANCELED: CANCELED,
-             DONE: DONE,
-             RESPONDED: RESPONDED
-              };
+- (void)resolveWithAction: (NSString *)action {
+    [self resolvePromise: @{
+                             @"action": action
+                             }];
 }
 
-- (void)resolveAndReset: (id) result {
+- (void)resolveWithAction: (NSString *)action andParams: (NSDictionary *) params {
+    NSMutableDictionary *extendedArgs = [params mutableCopy];
+    [extendedArgs setObject:action forKey:@"action"];
+    [self resolvePromise: extendedArgs];
+}
+
+- (void)resolvePromise: (id) result {
     if (self.resolver) {
         self.resolver(result);
         [self resetPromises];
@@ -316,4 +343,3 @@ static NSString *const RESPONDED = @"RESPONDED";
 }
 
 @end
-
