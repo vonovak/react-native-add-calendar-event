@@ -1,7 +1,10 @@
+## 1.1.2
+
+* fix for android detection of whether or not a new event was added; see [issue](https://github.com/vonovak/react-native-add-calendar-event/issues/34) for more info
+
 ## 1.1.1
 
 * fix for android crash: https://github.com/vonovak/react-native-add-calendar-event/issues/35
-
 
 ## 1.1.0
 
