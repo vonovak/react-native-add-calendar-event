@@ -1,10 +1,12 @@
 # react-native-add-calendar-event
 
-This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. See the usage section for more information. The functionality is provided through native modules and won't therefore work with Expo.
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
 
 <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
 
 ## Getting started
+
+> Note: this readme currently covers the v2 RC that you can get by `yarn add react-native-add-calendar-event@next`. See [this](https://github.com/vonovak/react-native-add-calendar-event/tree/v1.1.2) for the v1 docs.
 
 `npm install react-native-add-calendar-event --save`
 
@@ -144,7 +146,7 @@ Please see the docs on [tintColor](https://developer.apple.com/documentation/uik
 
 ### Exported constants
 
-Please note that `SAVED`, `CANCELED`, `DELETED`, `DONE` and `RESPONDED` constants are exported from the module. The constants are borrowed from iOS and are documented in [EKEventViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventviewaction?language=objc) and [EKEventEditViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventeditviewaction?language=objc).
+Please note that `SAVED`, `CANCELED`, `DELETED`, `DONE` and `RESPONDED` constants are exported from the module. The constants are borrowed from iOS and are covered in [EKEventViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventviewaction?language=objc) and [EKEventEditViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventeditviewaction?language=objc).
 
 #### Note on the `Date` JS Object
 
