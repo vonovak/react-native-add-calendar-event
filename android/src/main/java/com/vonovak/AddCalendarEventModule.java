@@ -33,6 +33,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     private static final int POST_RESULT_ID = 2;
     private Promise promise;
     private Long eventPriorId;
+    private Long shownOrEditedEventId;
 
     private static final String DELETED = "DELETED";
     private static final String SAVED = "SAVED";
@@ -62,6 +63,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
     private void resetMembers() {
         promise = null;
         eventPriorId = 0L;
+        shownOrEditedEventId = 0L;
     }
 
     @Override
@@ -142,7 +144,8 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
             rejectPromise("event with id " + eventIdString + " not found");
             return;
         }
-        Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, Long.valueOf(eventIdString));
+        shownOrEditedEventId = Long.valueOf(eventIdString);
+        Uri eventUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, shownOrEditedEventId);
 
         setPriorEventId(getCurrentActivity());
 
@@ -220,26 +223,20 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         ContentResolver cr = getReactApplicationContext().getContentResolver();
 
         boolean wasNewEventCreated = postId > priorId;
-        boolean doesEventExist = doesEventExist(cr, postId);
-        // TODO implement wasExistingEventEdited if you want to distinguish between
-        // cancelling (dismissing the dialog) and saving some changes to the event
-//        boolean wasExistingEventEdited = true;
+        boolean doesPostEventExist = doesEventExist(cr, postId);
 
         WritableMap result = Arguments.createMap();
         String eventId = String.valueOf(postId);
-        if (wasNewEventCreated || doesEventExist) {
+        if (doesPostEventExist && wasNewEventCreated) {
             // react native bridge doesn't support passing longs
             // plus we pass a map of Strings to be consistent with ios
             result.putString("eventIdentifier", eventId);
             result.putString("calendarItemIdentifier", eventId);
             result.putString("action", SAVED);
-        }
-//        else if (doesEventExist && !wasExistingEventEdited) {
-//            result.putString("eventIdentifier", eventId);
-//            result.putString("calendarItemIdentifier", eventId);
-//            result.putString("action", CANCELED);
-//        }
-        else {
+        } else if (doesEventExist(cr, shownOrEditedEventId)) {
+            // NOTE you'll get here even when you edit and save an existing event
+            result.putString("action", CANCELED);
+        } else {
             result.putString("action", DELETED);
         }
         promise.resolve(result);
