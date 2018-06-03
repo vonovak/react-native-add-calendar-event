@@ -107,18 +107,18 @@ Due to the differences in the underlying native apis, it is not trivial to come 
 
 * presentEventCreatingDialog
 
-| situation                   | result on both platforms: object with                                  |
-| :-------------------------- | :--------------------------------------------------------------------- |
-| event is created            | `{ action: 'SAVED', eventIdentifier: id, calendarItemIdentifier: id }` |
-| event creation is cancelled | `{ action: 'CANCELED' }`                                               |
+| situation                   | result on both platforms: object with                                          |
+| :-------------------------- | :----------------------------------------------------------------------------- |
+| event is created            | `{ action: 'SAVED', eventIdentifier: string, calendarItemIdentifier: string }` |
+| event creation is cancelled | `{ action: 'CANCELED' }`                                                       |
 
 * presentEventEditingDialog
 
-| situation                  | result on iOS: object with                                             | result on Android: object with |
-| :------------------------- | :--------------------------------------------------------------------- | ------------------------------ |
-| event is edited            | `{ action: 'SAVED', eventIdentifier: id, calendarItemIdentifier: id }` | `{ action: 'CANCELED' }`       |
-| event editing is cancelled | `{ action: 'CANCELED' }`                                               | `{ action: 'CANCELED' }`       |
-| event is deleted           | `{ action: 'DELETED' }`                                                | `{ action: 'DELETED' }`        |
+| situation                  | result on iOS: object with                                                     | result on Android: object with |
+| :------------------------- | :----------------------------------------------------------------------------- | ------------------------------ |
+| event is edited            | `{ action: 'SAVED', eventIdentifier: string, calendarItemIdentifier: string }` | `{ action: 'CANCELED' }`       |
+| event editing is cancelled | `{ action: 'CANCELED' }`                                                       | `{ action: 'CANCELED' }`       |
+| event is deleted           | `{ action: 'DELETED' }`                                                        | `{ action: 'DELETED' }`        |
 
 * presentEventViewingDialog
 
