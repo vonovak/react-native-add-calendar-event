@@ -2,6 +2,8 @@
 
 This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
 
+For managing calendar events without the UI for user to interact with, see [react-native-calendar-events](https://github.com/wmcmahan/react-native-calendar-events).
+
 <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
 
 ## Getting started
@@ -62,7 +64,6 @@ eventConfig object:
 
 | Property  | Value   | Note                                                                |
 | :-------- | :------ | :------------------------------------------------------------------ |
-| eventId   | String  | Id of edited event. Do not pass if you want to add a new event.     |
 | title     | String  |                                                                     |
 | startDate | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
 | endDate   | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
