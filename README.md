@@ -1,6 +1,6 @@
 # react-native-add-calendar-event
 
-This package alows you to start an activity (Android) or show a modal window (iOS) for adding or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id. See the usage section for more information. The functionality is provided through native modules and won't therefore work with Expo.
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. See the usage section for more information. The functionality is provided through native modules and won't therefore work with Expo.
 
 <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
 
@@ -20,7 +20,7 @@ or
 
 3.  rebuild your project
 
-IOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run pod install. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
+iOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run `pod install`. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
 
 ## Usage
 
@@ -34,7 +34,7 @@ const eventConfig = {
   // and other options
 };
 
-AddCalendarEvent.presentEventDialog(eventConfig)
+AddCalendarEvent.presentEventCreatingDialog(eventConfig)
   .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
     // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
     // These are two different identifiers on iOS.
@@ -43,7 +43,7 @@ AddCalendarEvent.presentEventDialog(eventConfig)
     if (eventInfo) {
       console.warn(JSON.stringify(eventInfo));
     } else {
-      console.warn('dismissed');
+      console.warn(eventInfo);
     }
   })
   .catch((error: string) => {
