@@ -1,36 +1,77 @@
-import { NativeModules, Platform, PermissionsAndroid } from 'react-native';
+import { NativeModules, Platform, PermissionsAndroid, processColor } from 'react-native';
 
 const AddCalendarEvent = NativeModules.AddCalendarEvent;
 
-const _presentCalendarEventDialog = eventConfig => {
-  return AddCalendarEvent.presentEventDialog(eventConfig);
+export const presentEventViewingDialog = options => {
+  const toCall = () => AddCalendarEvent.presentEventViewingDialog(processColorsIOS(options));
+  return withPermissionsCheck(toCall);
 };
 
-export const presentEventDialog = options => {
+export const presentEventEditingDialog = options => {
+  const toCall = () => AddCalendarEvent.presentEventEditingDialog(processColorsIOS(options));
+  return withPermissionsCheck(toCall);
+};
+
+export const presentEventCreatingDialog = options => {
+  const toCall = () => AddCalendarEvent.presentEventCreatingDialog(processColorsIOS(options));
+  return withPermissionsCheck(toCall);
+};
+
+const processColorsIOS = config => {
+  if (Platform.OS === 'android' || !config) {
+    return config;
+  }
+  const { navigationBarIOS } = config;
+  if (navigationBarIOS) {
+    const { tintColor, backgroundColor, barTintColor } = navigationBarIOS;
+    navigationBarIOS.tintColor = tintColor && processColor(tintColor);
+    navigationBarIOS.backgroundColor = backgroundColor && processColor(backgroundColor);
+    navigationBarIOS.barTintColor = barTintColor && processColor(barTintColor);
+  }
+  return config;
+};
+
+const withPermissionsCheck = toCallWhenPermissionGranted => {
   if (Platform.OS === 'android') {
+    return withPermissionsCheckAndroid(toCallWhenPermissionGranted);
+  } else {
+    return withPermissionsCheckIOS(toCallWhenPermissionGranted);
+  }
+};
+
+const withPermissionsCheckAndroid = async toCallWhenPermissionGranted => {
+  try {
     // it seems unnecessary to check first, but if permission is manually disabled
     // the PermissionsAndroid.request will return granted (a RN bug?)
-    return PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR).then(
-      hasPermission => {
-        if (hasPermission === true) {
-          return _presentCalendarEventDialog(options);
-        } else {
-          return PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR)
-            .then(granted => {
-              if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                return _presentCalendarEventDialog(options);
-              } else {
-                return Promise.reject('permissionNotGranted');
-              }
-            })
-            .catch(err => {
-              return Promise.reject(err);
-            });
-        }
-      }
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
     );
-  } else {
-    // ios permissions resolved within the native module
-    return _presentCalendarEventDialog(options);
+
+    if (hasPermission === true) {
+      return toCallWhenPermissionGranted();
+    } else {
+      const result = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
+      );
+      if (result === PermissionsAndroid.RESULTS.GRANTED) {
+        return toCallWhenPermissionGranted();
+      } else {
+        return Promise.reject('permissionNotGranted');
+      }
+    }
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
+
+const withPermissionsCheckIOS = async toCallWhenPermissionGranted => {
+  try {
+    const hasPermission = await AddCalendarEvent.requestCalendarPermission();
+
+    if (hasPermission) {
+      return toCallWhenPermissionGranted();
+    }
+  } catch (err) {
+    return Promise.reject(err);
   }
 };

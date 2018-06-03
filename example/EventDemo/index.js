@@ -48,6 +48,12 @@ export default class EventDemo extends Component {
           }}
           title="Edit event with this id"
         />
+        <Button
+          onPress={() => {
+            EventDemo.showCalendarEventWithId(this.state.text);
+          }}
+          title="Show event with this id"
+        />
       </View>
     );
   }
@@ -57,9 +63,13 @@ export default class EventDemo extends Component {
       title,
       startDate: utcDateToString(startDateUTC),
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
+      navigationBarIOS: {
+        tintColor: 'orange',
+        backgroundColor: 'green',
+      },
     };
 
-    AddCalendarEvent.presentEventDialog(eventConfig)
+    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
       .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
         // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
         // These are two different identifiers on iOS.
@@ -68,7 +78,7 @@ export default class EventDemo extends Component {
         if (eventInfo) {
           console.warn(JSON.stringify(eventInfo));
         } else {
-          console.warn('dismissed');
+          console.warn(eventInfo);
         }
       })
       .catch((error: string) => {
@@ -82,10 +92,30 @@ export default class EventDemo extends Component {
       eventId,
     };
 
-    AddCalendarEvent.presentEventDialog(eventConfig)
-      .then(eventId => {
-        // eventId is always returned when editing events
-        console.warn(eventId);
+    AddCalendarEvent.presentEventEditingDialog(eventConfig)
+      .then(eventInfo => {
+        console.warn(JSON.stringify(eventInfo));
+      })
+      .catch((error: string) => {
+        // handle error such as when user rejected permissions
+        console.warn(error);
+      });
+  };
+
+  static showCalendarEventWithId = (eventId: string) => {
+    const eventConfig = {
+      eventId,
+      allowsEditing: true,
+      allowsCalendarPreview: true,
+      navigationBarIOS: {
+        tintColor: 'orange',
+        backgroundColor: 'green',
+      },
+    };
+
+    AddCalendarEvent.presentEventViewingDialog(eventConfig)
+      .then(eventInfo => {
+        console.warn(JSON.stringify(eventInfo));
       })
       .catch((error: string) => {
         // handle error such as when user rejected permissions

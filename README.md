@@ -1,10 +1,12 @@
 # react-native-add-calendar-event
 
-This package alows you to start an activity (Android) or show a modal window (iOS) for adding or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id. See the usage section for more information. The functionality is provided through native modules and won't therefore work with Expo.
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
 
 <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
 
 ## Getting started
+
+> Note: this readme currently covers the v2 RC that you can get by `yarn add react-native-add-calendar-event@next`. See [this](https://github.com/vonovak/react-native-add-calendar-event/tree/v1.1.2) for the v1 docs.
 
 `npm install react-native-add-calendar-event --save`
 
@@ -20,9 +22,9 @@ or
 
 3.  rebuild your project
 
-IOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run pod install. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
+iOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run `pod install`. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
 
-## Usage
+## Quick example
 
 See the example folder for a demo app.
 
@@ -34,7 +36,7 @@ const eventConfig = {
   // and other options
 };
 
-AddCalendarEvent.presentEventDialog(eventConfig)
+AddCalendarEvent.presentEventCreatingDialog(eventConfig)
   .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
     // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
     // These are two different identifiers on iOS.
@@ -43,7 +45,7 @@ AddCalendarEvent.presentEventDialog(eventConfig)
     if (eventInfo) {
       console.warn(JSON.stringify(eventInfo));
     } else {
-      console.warn('dismissed');
+      console.warn(eventInfo);
     }
   })
   .catch((error: string) => {
@@ -52,29 +54,105 @@ AddCalendarEvent.presentEventDialog(eventConfig)
   });
 ```
 
-### supported options:
+### Creating an event
 
-| Property      | Value   | Note                                                                 |
-| :------------ | :------ | :------------------------------------------------------------------- |
-| eventId       | String  | Id of edited event. Do not pass if you want to add a new event.      |
-| title         | String  |                                                                      |
-| startDate     | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                   |
-| endDate       | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                   |
-| location      | String  |                                                                      |
-| allDay        | boolean |                                                                      |
-| url           | String  | iOS only                                                             |
-| notes         | String  | The notes (iOS) or description (Android) associated with the event.  |
-| useEditIntent | boolean | Android only, and only when editing an event. See description below. |
+call `presentEventCreatingDialog(eventConfig)`
 
-* useEditIntent: `ACTION_EDIT` should work for editing events, according to [android docs](https://developer.android.com/guide/topics/providers/calendar-provider.html#intent-edit) but this doesn't always seem to be the case as reported in the [bug tracker](https://issuetracker.google.com/u/1/issues/36957942?pli=1). This option leaves the choice up to you. By default, the module will use `ACTION_VIEW` which will only show the event, but from there it is easy for the user to tap the edit button and make changes.
+eventConfig object:
+
+| Property  | Value   | Note                                                                |
+| :-------- | :------ | :------------------------------------------------------------------ |
+| eventId   | String  | Id of edited event. Do not pass if you want to add a new event.     |
+| title     | String  |                                                                     |
+| startDate | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
+| endDate   | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
+| location  | String  |                                                                     |
+| allDay    | boolean |                                                                     |
+| url       | String  | iOS only                                                            |
+| notes     | String  | The notes (iOS) or description (Android) associated with the event. |
 
 The dates passed to this module are strings. If you use moment, you may get the right format via `momentInUTC.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')` the string may look eg. like this: `'2017-09-25T08:00:00.000Z'`.
 
 More options can be easily added, PRs are welcome!
 
+### Editing an event
+
+call `presentEventEditingDialog(eventConfig)`
+
+eventConfig object:
+
+| Property      | Value   | Note                                 |
+| :------------ | :------ | :----------------------------------- |
+| eventId       | String  | Id of edited event.                  |
+| useEditIntent | boolean | Android only, see description below. |
+
+useEditIntent: `ACTION_EDIT` should work for editing events, according to [android docs](https://developer.android.com/guide/topics/providers/calendar-provider.html#intent-edit) but this doesn't always seem to be the case as reported in the [bug tracker](https://issuetracker.google.com/u/1/issues/36957942?pli=1). This option leaves the choice up to you. By default, the module will use `ACTION_VIEW` which will only show the event, but from there it is easy for the user to tap the edit button and make changes.
+
+### Viewing an event
+
+call `presentEventViewingDialog(eventConfig)`
+
+eventConfig object:
+
+| Property | Value  | Note                |
+| :------- | :----- | :------------------ |
+| eventId  | String | Id of edited event. |
+
+### Interpreting the results
+
+The aforementioned functions all return promises that resolve with information about what happened or reject with and error.
+
+Due to the differences in the underlying native apis, it is not trivial to come up with a unified interface that could be exposed to JS and the module therefore returns slightly different results on each platform. The rules are:
+
+* presentEventCreatingDialog
+
+| situation                   | result on both platforms: object with                                  |
+| :-------------------------- | :--------------------------------------------------------------------- |
+| event is created            | `{ action: 'SAVED', eventIdentifier: id, calendarItemIdentifier: id }` |
+| event creation is cancelled | `{ action: 'CANCELED' }`                                               |
+
+* presentEventEditingDialog
+
+| situation                  | result on iOS: object with                                             | result on Android: object with |
+| :------------------------- | :--------------------------------------------------------------------- | ------------------------------ |
+| event is edited            | `{ action: 'SAVED', eventIdentifier: id, calendarItemIdentifier: id }` | `{ action: 'CANCELED' }`       |
+| event editing is cancelled | `{ action: 'CANCELED' }`                                               | `{ action: 'CANCELED' }`       |
+| event is deleted           | `{ action: 'DELETED' }`                                                | `{ action: 'DELETED' }`        |
+
+* presentEventViewingDialog
+
+On Android, this will lead to same situation as calling `presentEventEditingDialog`; the following table describes iOS only:
+
+| situation                                              | result on iOS             |
+| :----------------------------------------------------- | :------------------------ |
+| event modal is dismissed                               | `{ action: 'DONE' }`      |
+| user responded to and saved a pending event invitation | `{ action: 'RESPONDED' }` |
+| event is deleted                                       | `{ action: 'DELETED' }`   |
+
+### Configuring the navigation bar (iOS only)
+
+The navigation bar appearance for all calls can be customized by providing a `navigationBarIOS` object in the config. The object has the following shape:
+
+```
+navigationBarIOS: {
+  tintColor: string,
+  barTintColor: string,
+  backgroundColor: string,
+  translucent: boolean,
+}
+```
+
+Please see the docs on [tintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624937-tintcolor?language=objc), [barTintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624931-bartintcolor?language=objc), [backgroundColor](https://developer.apple.com/documentation/uikit/uiview/1622591-backgroundcolor?language=objc), [translucent](https://developer.apple.com/documentation/uikit/uinavigationbar/1624928-translucent?language=objc)
+
+### Exported constants
+
+Please note that `SAVED`, `CANCELED`, `DELETED`, `DONE` and `RESPONDED` constants are exported from the module. The constants are borrowed from iOS and are covered in [EKEventViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventviewaction?language=objc) and [EKEventEditViewAction docs](https://developer.apple.com/documentation/eventkitui/ekeventeditviewaction?language=objc).
+
+#### Note on the `Date` JS Object
+
 It is recommended to not rely on the standard `Date` object and instead use some third party library for dealing with dates, such as moment.js because JavaScriptCore (which is used to run react-native on devices) handles dates differently from V8 (which is used when debugging, when the code runs on your computer).
 
-#### Changing language of the dialog
+#### Changing the language of the iOS dialog
 
 see [StackOverflow answer](https://stackoverflow.com/questions/18425945/xcode-5-and-localization-of-xib-files)
 
