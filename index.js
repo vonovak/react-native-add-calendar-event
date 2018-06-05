@@ -15,7 +15,6 @@ export const presentEventDialog = async options => {
       PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CALENDAR),
     ]);
 
-    console.warn(hasReadPermission, hasWritePermission);
     if (hasWritePermission === true && hasReadPermission === true) {
       return _presentCalendarEventDialog(options);
     }
