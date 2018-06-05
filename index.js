@@ -6,29 +6,35 @@ const _presentCalendarEventDialog = eventConfig => {
   return AddCalendarEvent.presentEventDialog(eventConfig);
 };
 
-export const presentEventDialog = options => {
+export const presentEventDialog = async options => {
   if (Platform.OS === 'android') {
     // it seems unnecessary to check first, but if permission is manually disabled
     // the PermissionsAndroid.request will return granted (a RN bug?)
-    return PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR).then(
-      hasPermission => {
-        if (hasPermission === true) {
-          return _presentCalendarEventDialog(options);
-        } else {
-          return PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR)
-            .then(granted => {
-              if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                return _presentCalendarEventDialog(options);
-              } else {
-                return Promise.reject('permissionNotGranted');
-              }
-            })
-            .catch(err => {
-              return Promise.reject(err);
-            });
-        }
-      }
+    const [hasWritePermission, hasReadPermission] = await Promise.all([
+      PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR),
+      PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CALENDAR),
+    ]);
+
+    console.warn(hasReadPermission, hasWritePermission);
+    if (hasWritePermission === true && hasReadPermission === true) {
+      return _presentCalendarEventDialog(options);
+    }
+
+    const writeAccessResult = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
     );
+    const readAccessResult = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_CALENDAR
+    );
+
+    if (
+      writeAccessResult === PermissionsAndroid.RESULTS.GRANTED &&
+      readAccessResult === PermissionsAndroid.RESULTS.GRANTED
+    ) {
+      return _presentCalendarEventDialog(options);
+    } else {
+      return Promise.reject('permissionNotGranted');
+    }
   } else {
     // ios permissions resolved within the native module
     return _presentCalendarEventDialog(options);
