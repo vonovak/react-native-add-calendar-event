@@ -8,7 +8,7 @@ For managing calendar events without the UI for user to interact with, see [reac
 
 ## Getting started
 
-> Note: this readme currently covers the v2 RC that you can get by `yarn add react-native-add-calendar-event@next`. See [this](https://github.com/vonovak/react-native-add-calendar-event/tree/v1.1.2) for the v1 docs.
+> Note: this readme currently covers the v2 RC that you can get by `yarn add react-native-add-calendar-event@next`. See [this](https://github.com/vonovak/react-native-add-calendar-event/tree/1.x) for the v1 docs.
 
 `npm install react-native-add-calendar-event --save`
 
@@ -105,22 +105,22 @@ The aforementioned functions all return promises that resolve with information a
 
 Due to the differences in the underlying native apis, it is not trivial to come up with a unified interface that could be exposed to JS and the module therefore returns slightly different results on each platform. The rules are:
 
-* presentEventCreatingDialog
+- presentEventCreatingDialog
 
-| situation                   | result on both platforms: object with                                          |
+| situation                   | result on both platforms                                                       |
 | :-------------------------- | :----------------------------------------------------------------------------- |
 | event is created            | `{ action: 'SAVED', eventIdentifier: string, calendarItemIdentifier: string }` |
 | event creation is cancelled | `{ action: 'CANCELED' }`                                                       |
 
-* presentEventEditingDialog
+- presentEventEditingDialog
 
-| situation                  | result on iOS: object with                                                     | result on Android: object with |
-| :------------------------- | :----------------------------------------------------------------------------- | ------------------------------ |
-| event is edited            | `{ action: 'SAVED', eventIdentifier: string, calendarItemIdentifier: string }` | `{ action: 'CANCELED' }`       |
-| event editing is cancelled | `{ action: 'CANCELED' }`                                                       | `{ action: 'CANCELED' }`       |
-| event is deleted           | `{ action: 'DELETED' }`                                                        | `{ action: 'DELETED' }`        |
+| situation                  | result on iOS                                                                  | result on Android        |
+| :------------------------- | :----------------------------------------------------------------------------- | ------------------------ |
+| event is edited            | `{ action: 'SAVED', eventIdentifier: string, calendarItemIdentifier: string }` | `{ action: 'CANCELED' }` |
+| event editing is cancelled | `{ action: 'CANCELED' }`                                                       | `{ action: 'CANCELED' }` |
+| event is deleted           | `{ action: 'DELETED' }`                                                        | `{ action: 'DELETED' }`  |
 
-* presentEventViewingDialog
+- presentEventViewingDialog
 
 On Android, this will lead to same situation as calling `presentEventEditingDialog`; the following table describes iOS only:
 
@@ -170,8 +170,8 @@ see [StackOverflow answer](https://stackoverflow.com/questions/18425945/xcode-5-
 
 1.  Open up `android/app/src/main/java/[...]/MainActivity.java`
 
-* Add `import com.vonovak.AddCalendarEventPackage;` to the imports at the top of the file
-* Add `new AddCalendarEventPackage()` to the list returned by the `getPackages()` method
+- Add `import com.vonovak.AddCalendarEventPackage;` to the imports at the top of the file
+- Add `new AddCalendarEventPackage()` to the list returned by the `getPackages()` method
 
 2.  Append the following lines to `android/settings.gradle`:
     ```

@@ -66,6 +66,10 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         shownOrEditedEventId = 0L;
     }
 
+    private boolean isEventBeingEdited() {
+        return shownOrEditedEventId != 0L;
+    }
+
     @Override
     public String getName() {
         return ADD_EVENT_MODULE_NAME;
@@ -233,7 +237,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
             result.putString("eventIdentifier", eventId);
             result.putString("calendarItemIdentifier", eventId);
             result.putString("action", SAVED);
-        } else if (doesEventExist(cr, shownOrEditedEventId)) {
+        } else if (!isEventBeingEdited() || doesEventExist(cr, shownOrEditedEventId)) {
             // NOTE you'll get here even when you edit and save an existing event
             result.putString("action", CANCELED);
         } else {

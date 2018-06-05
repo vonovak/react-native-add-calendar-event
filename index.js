@@ -40,38 +40,38 @@ const withPermissionsCheck = toCallWhenPermissionGranted => {
 };
 
 const withPermissionsCheckAndroid = async toCallWhenPermissionGranted => {
-  try {
-    // it seems unnecessary to check first, but if permission is manually disabled
-    // the PermissionsAndroid.request will return granted (a RN bug?)
-    const hasPermission = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-    );
+  // it seems unnecessary to check first, but if permission is manually disabled
+  // the PermissionsAndroid.request will return granted (a RN bug?)
+  const [hasWritePermission, hasReadPermission] = await Promise.all([
+    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR),
+    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CALENDAR),
+  ]);
 
-    if (hasPermission === true) {
-      return toCallWhenPermissionGranted();
-    } else {
-      const result = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-      );
-      if (result === PermissionsAndroid.RESULTS.GRANTED) {
-        return toCallWhenPermissionGranted();
-      } else {
-        return Promise.reject('permissionNotGranted');
-      }
-    }
-  } catch (err) {
-    return Promise.reject(err);
+  if (hasWritePermission === true && hasReadPermission === true) {
+    return toCallWhenPermissionGranted();
+  }
+
+  const writeAccessResult = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
+  );
+  const readAccessResult = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.READ_CALENDAR
+  );
+
+  if (
+    writeAccessResult === PermissionsAndroid.RESULTS.GRANTED &&
+    readAccessResult === PermissionsAndroid.RESULTS.GRANTED
+  ) {
+    return toCallWhenPermissionGranted();
+  } else {
+    return Promise.reject('permissionNotGranted');
   }
 };
 
 const withPermissionsCheckIOS = async toCallWhenPermissionGranted => {
-  try {
-    const hasPermission = await AddCalendarEvent.requestCalendarPermission();
+  const hasPermission = await AddCalendarEvent.requestCalendarPermission();
 
-    if (hasPermission) {
-      return toCallWhenPermissionGranted();
-    }
-  } catch (err) {
-    return Promise.reject(err);
+  if (hasPermission) {
+    return toCallWhenPermissionGranted();
   }
 };
