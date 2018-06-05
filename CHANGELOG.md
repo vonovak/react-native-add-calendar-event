@@ -1,6 +1,10 @@
-## 1.1.2
+## 1.1.4
 
 - fixes https://github.com/vonovak/react-native-add-calendar-event/issues/43
+
+## 1.1.3
+
+- do not use, a forgotten debug log call got into the release
 
 ## 1.1.2
 
