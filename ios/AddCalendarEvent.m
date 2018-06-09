@@ -143,7 +143,7 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
         [weakSelf presentViewController:controller];
     };
     
-    [self runIfAccessGranted:showEventCreatingController withEvent:[weakSelf createNewEventInstance]];
+    [self runIfAccessGranted:showEventCreatingController withEvent:[self createNewEventInstance]];
 }
 
 - (void)runIfAccessGranted: (void (^)(EKEvent *))codeBlock withEvent: (EKEvent *) event
@@ -182,7 +182,7 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         [weakSelf presentViewController:navBar];
     };
     
-    [self runIfAccessGranted:showEventViewingController withEvent:[weakSelf getEditedEventInstance]];
+    [self runIfAccessGranted:showEventViewingController withEvent:[self getEditedEventInstance]];
 }
 
 -(void)assignNavbarColorsTo: (UINavigationBar *) navigationBar
@@ -222,7 +222,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
         [weakSelf presentViewController:controller];
     };
     
-    [self runIfAccessGranted:showEventEditingController withEvent:[weakSelf getEditedEventInstance]];
+    [self runIfAccessGranted:showEventEditingController withEvent:[self getEditedEventInstance]];
 }
 
 - (void)presentViewController: (UIViewController *) controller {
