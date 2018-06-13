@@ -95,9 +95,11 @@ call `presentEventViewingDialog(eventConfig)`
 
 eventConfig object:
 
-| Property | Value  | Note                |
-| :------- | :----- | :------------------ |
-| eventId  | String | Id of edited event. |
+| Property              | Value   | Note                                                                                                                                     |
+| :-------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------- |
+| eventId               | String  | Id of edited event.                                                                                                                      |
+| allowsEditing         | boolean | iOS only; [docs](https://developer.apple.com/documentation/eventkitui/ekeventviewcontroller/1613964-allowsediting?language=objc)         |
+| allowsCalendarPreview | boolean | iOS only; [docs](https://developer.apple.com/documentation/eventkitui/ekeventviewcontroller/1613956-allowscalendarpreview?language=objc) |
 
 ### Interpreting the results
 
