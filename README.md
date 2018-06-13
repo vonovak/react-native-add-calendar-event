@@ -8,7 +8,7 @@ For managing calendar events without the UI for user to interact with, see [reac
 
 ## Getting started
 
-> Note: this readme currently covers the v2 RC that you can get by `yarn add react-native-add-calendar-event@next`. See [this](https://github.com/vonovak/react-native-add-calendar-event/tree/1.x) for the v1 docs.
+> Note: the readme covers v2, see [this](https://github.com/vonovak/react-native-add-calendar-event/tree/1.x) for the v1 docs.
 
 `npm install react-native-add-calendar-event --save`
 
