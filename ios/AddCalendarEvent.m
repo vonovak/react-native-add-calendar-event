@@ -71,6 +71,9 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
     return self;
 }
 
+#pragma mark -
+#pragma mark Calendar permission methods
+
 RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.resolver = resolve;
@@ -115,9 +118,9 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
 
 - (void)requestCalendarAccess
 {
+    AddCalendarEvent * __weak weakSelf = self;
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
      {
-         AddCalendarEvent * __weak weakSelf = self;
          dispatch_async(dispatch_get_main_queue(), ^{
              if (granted) {
                  [weakSelf markCalendarAccessAsGranted];
