@@ -92,11 +92,11 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
         case EKAuthorizationStatusDenied:
         case EKAuthorizationStatusRestricted:
         {
-            [self rejectPromise:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+            [self rejectCalendarPermission];
         }
             break;
         default:
-            [self rejectPromise:@"permissionNotGranted" withMessage:@"permissionNotGranted" withError:nil];
+            [self rejectCalendarPermission];
             break;
     }
 }
@@ -108,6 +108,11 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
     [self resolvePromise: @(YES)];
 }
 
+- (void)rejectCalendarPermission
+{
+    [self resolvePromise: @(NO)];
+}
+
 - (void)requestCalendarAccess
 {
     [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
@@ -117,7 +122,7 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
              if (granted) {
                  [weakSelf markCalendarAccessAsGranted];
              } else {
-                 [weakSelf rejectPromise:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+                 [weakSelf rejectCalendarPermission];
              }
          });
      }];

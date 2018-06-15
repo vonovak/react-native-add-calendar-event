@@ -1,3 +1,7 @@
+## 2.0.1
+
+fixes [#45](https://github.com/vonovak/react-native-add-calendar-event/issues/45)
+
 ## 2.0.0
 
 - adds ability to view event given its id, there are also new options for navbar appearance on iOS

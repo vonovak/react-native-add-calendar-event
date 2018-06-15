@@ -1,4 +1,5 @@
 import { NativeModules, Platform, PermissionsAndroid, processColor } from 'react-native';
+const { WRITE_CALENDAR, READ_CALENDAR } = PermissionsAndroid.PERMISSIONS;
 
 const AddCalendarEvent = NativeModules.AddCalendarEvent;
 
@@ -39,32 +40,29 @@ const withPermissionsCheck = toCallWhenPermissionGranted => {
   }
 };
 
+const permissionNotGranted = 'permissionNotGranted';
+
 const withPermissionsCheckAndroid = async toCallWhenPermissionGranted => {
   // it seems unnecessary to check first, but if permission is manually disabled
   // the PermissionsAndroid.request will return granted (a RN bug?)
   const [hasWritePermission, hasReadPermission] = await Promise.all([
-    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR),
-    PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CALENDAR),
+    PermissionsAndroid.check(WRITE_CALENDAR),
+    PermissionsAndroid.check(READ_CALENDAR),
   ]);
 
   if (hasWritePermission === true && hasReadPermission === true) {
     return toCallWhenPermissionGranted();
   }
 
-  const writeAccessResult = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.WRITE_CALENDAR
-  );
-  const readAccessResult = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.READ_CALENDAR
-  );
+  const results = await PermissionsAndroid.requestMultiple([WRITE_CALENDAR, READ_CALENDAR]);
 
   if (
-    writeAccessResult === PermissionsAndroid.RESULTS.GRANTED &&
-    readAccessResult === PermissionsAndroid.RESULTS.GRANTED
+    results[READ_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED &&
+    results[WRITE_CALENDAR] === PermissionsAndroid.RESULTS.GRANTED
   ) {
     return toCallWhenPermissionGranted();
   } else {
-    return Promise.reject('permissionNotGranted');
+    return Promise.reject(permissionNotGranted);
   }
 };
 
@@ -73,5 +71,7 @@ const withPermissionsCheckIOS = async toCallWhenPermissionGranted => {
 
   if (hasPermission) {
     return toCallWhenPermissionGranted();
+  } else {
+    return Promise.reject(permissionNotGranted);
   }
 };

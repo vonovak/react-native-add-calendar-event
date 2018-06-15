@@ -63,6 +63,7 @@ export default class EventDemo extends Component {
       title,
       startDate: utcDateToString(startDateUTC),
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
+      notes: 'tasty!',
       navigationBarIOS: {
         tintColor: 'orange',
         backgroundColor: 'green',
