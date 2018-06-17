@@ -43,12 +43,8 @@ AddCalendarEvent.presentEventCreatingDialog(eventConfig)
     // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
     // These are two different identifiers on iOS.
     // On Android, where they are both equal and represent the event id, also strings.
-    // when false is returned, the dialog was dismissed
-    if (eventInfo) {
-      console.warn(JSON.stringify(eventInfo));
-    } else {
-      console.warn(eventInfo);
-    }
+    // when { action: 'CANCELLED' } is returned, the dialog was dismissed
+    console.warn(JSON.stringify(eventInfo));
   })
   .catch((error: string) => {
     // handle error such as when user rejected permissions
