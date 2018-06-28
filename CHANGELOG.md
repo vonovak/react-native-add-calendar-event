@@ -1,6 +1,10 @@
+## 2.0.2
+
+- improves weak pointer initialization. You probably didn;t have any issues with this.
+
 ## 2.0.1
 
-fixes [#45](https://github.com/vonovak/react-native-add-calendar-event/issues/45)
+- fixes [#45](https://github.com/vonovak/react-native-add-calendar-event/issues/45)
 
 ## 2.0.0
 
