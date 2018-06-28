@@ -99,7 +99,7 @@ eventConfig object:
 
 ### Interpreting the results
 
-The aforementioned functions all return promises that resolve with information about what happened or reject with and error.
+The aforementioned functions all return a promise that resolves with information about what happened or rejects with an error.
 
 Due to the differences in the underlying native apis, it is not trivial to come up with a unified interface that could be exposed to JS and the module therefore returns slightly different results on each platform. The rules are:
 
