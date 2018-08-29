@@ -185,7 +185,7 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
             controller.allowsCalendarPreview = [RCTConvert BOOL:options[@"allowsCalendarPreview"]];
         }
         
-        UINavigationController *navBar = [[UINavigationController new] initWithRootViewController:controller];
+        UINavigationController *navBar = [[UINavigationController alloc] initWithRootViewController:controller];
         [weakSelf assignNavbarColorsTo:navBar.navigationBar];
         [weakSelf presentViewController:navBar];
     };

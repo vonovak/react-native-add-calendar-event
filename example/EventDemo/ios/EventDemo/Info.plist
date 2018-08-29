@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSCalendarsUsageDescription</key>
-	<string>This demo would like to access your calendar</string>
+	<string>Demo app would like to save events to your calendar.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
