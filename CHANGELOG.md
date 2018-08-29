@@ -1,6 +1,11 @@
+## 2.1.0
+
+- this is mostly a maintenance release, there are no new features in the native module. The gradle plugin version was updated and you can specify version of buildTools used in the module, as seen in the [example app's build.gradle](https://github.com/vonovak/react-native-add-calendar-event/blob/35eb1226829f1c7aac1b727e2010bd673c189374/example/EventDemo/android/build.gradle#L35)
+- the example app was upgraded to RN 0.56 (meaning the package itself can be used with it too)
+
 ## 2.0.2
 
-- improves weak pointer initialization. You probably didn;t have any issues with this.
+- improves weak pointer initialization. You probably didn't have any issues with this.
 
 ## 2.0.1
 
