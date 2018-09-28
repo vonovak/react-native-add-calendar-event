@@ -67,6 +67,7 @@ export default class EventDemo extends Component {
       navigationBarIOS: {
         tintColor: 'orange',
         backgroundColor: 'green',
+        titleColor: 'blue',
       },
     };
 
