@@ -138,6 +138,7 @@ navigationBarIOS: {
   barTintColor: string,
   backgroundColor: string,
   translucent: boolean,
+  titleColor: string,
 }
 ```
 
