@@ -142,7 +142,7 @@ navigationBarIOS: {
 }
 ```
 
-Please see the docs on [tintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624937-tintcolor?language=objc), [barTintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624931-bartintcolor?language=objc), [backgroundColor](https://developer.apple.com/documentation/uikit/uiview/1622591-backgroundcolor?language=objc), [translucent](https://developer.apple.com/documentation/uikit/uinavigationbar/1624928-translucent?language=objc)
+Please see the docs on [tintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624937-tintcolor?language=objc), [barTintColor](https://developer.apple.com/documentation/uikit/uinavigationbar/1624931-bartintcolor?language=objc), [backgroundColor](https://developer.apple.com/documentation/uikit/uiview/1622591-backgroundcolor?language=objc), [translucent](https://developer.apple.com/documentation/uikit/uinavigationbar/1624928-translucent?language=objc), [titleTextAttributes](https://developer.apple.com/documentation/uikit/uinavigationbar/1624953-titletextattributes?language=objc) (NSForegroundColorAttributeName)
 
 ### Exported constants
 
