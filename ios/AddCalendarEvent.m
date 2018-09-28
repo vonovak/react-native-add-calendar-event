@@ -210,6 +210,10 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         if (navbarOptions[@"barTintColor"]) {
             navigationBar.barTintColor = [RCTConvert UIColor:navbarOptions[@"barTintColor"]];
         }
+        if(navbarOptions[@"titleColor"]) {
+            UIColor* titleColor = [RCTConvert UIColor:navbarOptions[@"titleColor"]];
+            navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName: titleColor};
+        }
     }
 }
 

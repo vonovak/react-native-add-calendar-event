@@ -24,10 +24,11 @@ const processColorsIOS = config => {
   }
   const { navigationBarIOS } = config;
   if (navigationBarIOS) {
-    const { tintColor, backgroundColor, barTintColor } = navigationBarIOS;
+    const { tintColor, backgroundColor, barTintColor, titleColor } = navigationBarIOS;
     navigationBarIOS.tintColor = tintColor && processColor(tintColor);
     navigationBarIOS.backgroundColor = backgroundColor && processColor(backgroundColor);
     navigationBarIOS.barTintColor = barTintColor && processColor(barTintColor);
+    navigationBarIOS.titleColor = titleColor && processColor(titleColor);
   }
   return config;
 };
