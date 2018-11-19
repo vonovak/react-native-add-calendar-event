@@ -61,8 +61,8 @@ eventConfig object:
 | Property  | Value   | Note                                                                |
 | :-------- | :------ | :------------------------------------------------------------------ |
 | title     | String  |                                                                     |
-| startDate | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
-| endDate   | String  | format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                                  |
+| startDate | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
+| endDate   | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
 | location  | String  |                                                                     |
 | allDay    | boolean |                                                                     |
 | url       | String  | iOS only                                                            |
@@ -101,7 +101,7 @@ eventConfig object:
 
 The aforementioned functions all return a promise that resolves with information about what happened or rejects with an error.
 
-Due to the differences in the underlying native apis, it is not trivial to come up with a unified interface that could be exposed to JS and the module therefore returns slightly different results on each platform (we *can* do better though, PRs are welcome!). The rules are:
+Due to the differences in the underlying native apis, it is not trivial to come up with a unified interface that could be exposed to JS and the module therefore returns slightly different results on each platform (we _can_ do better though, PRs are welcome!). The rules are:
 
 - presentEventCreatingDialog
 
