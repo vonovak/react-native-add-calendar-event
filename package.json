@@ -3,6 +3,7 @@
   "version": "2.2.0",
   "description": "creating events in react native using the standard iOS / Android dialogs",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
