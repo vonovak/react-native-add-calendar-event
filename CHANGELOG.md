@@ -1,3 +1,7 @@
+## 2.3.0
+
+- Added TS typings: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/56) by @Manduro
+
 ## 2.2.0
 
 - Allow to change navigation bar title color on iOS: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/50) by @pablocarrillo
