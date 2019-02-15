@@ -64,6 +64,7 @@ export default class EventDemo extends Component {
       startDate: utcDateToString(startDateUTC),
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
       notes: 'tasty!',
+      alert: "1", //it's gonna add an alarm 5 minutes before
       navigationBarIOS: {
         tintColor: 'orange',
         backgroundColor: 'green',
