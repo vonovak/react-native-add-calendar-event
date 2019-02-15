@@ -28,6 +28,15 @@ declare module "react-native-add-calendar-event" {
      */
     notes?: string;
     navigationBarIOS?: NavigationBarIOS;
+    /*
+    * Alert string, could be "0", "1", "2" or "3"
+    * 0 => set an alarm at the original startDate
+    * 1 => set an alarm 5 minutes before startDate
+    * 2 => set an alarm 30 minutes before startDate
+    * 3 => set an alarm 60 minutes before startDate
+    * if no alert is set in the config, then no alert is set on the reminder
+    */
+   alert?: string;
   }
 
   /**
