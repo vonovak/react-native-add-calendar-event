@@ -1,3 +1,8 @@
+## 2.3.1
+
+- improved TS typings: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/68) by @uncledent
+- relaxed RN version requirement; closes https://github.com/vonovak/react-native-add-calendar-event/issues/62
+
 ## 2.3.0
 
 - Added TS typings: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/56) by @Manduro
@@ -5,7 +10,6 @@
 ## 2.2.0
 
 - Allow to change navigation bar title color on iOS: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/50) by @pablocarrillo
-
 
 ## 2.1.0
 
