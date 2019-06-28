@@ -94,13 +94,14 @@ declare module "react-native-add-calendar-event" {
 
   type ViewResult = DoneAction | RespondedAction | DeletedAction;
 
-  class AddCalendarEvent {
-    static presentEventCreatingDialog(
-      options: CreateOptions
-    ): Promise<CreateResult>;
-    static presentEventEditingDialog(options: EditOptions): Promise<EditResult>;
-    static presentEventViewingDialog(options: ViewOptions): Promise<ViewResult>;
-  }
+  export function presentEventCreatingDialog(
+    options: CreateOptions
+  ): Promise<CreateResult>;
+  export function presentEventEditingDialog(
+    options: EditOptions
+  ): Promise<EditResult>;
+  export function presentEventViewingDialog(
+    options: ViewOptions
+  ): Promise<ViewResult>;
 
-  export = AddCalendarEvent;
 }
