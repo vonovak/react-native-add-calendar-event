@@ -11,8 +11,10 @@ import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.app.LoaderManager;
 import android.content.Loader;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+// support for AndroidX
+import javax.annotation.Nullable;
 
 import com.facebook.react.bridge.*;
 
