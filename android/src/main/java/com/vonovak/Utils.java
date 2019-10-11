@@ -7,7 +7,7 @@ import android.net.Uri;
 import android.provider.CalendarContract;
 
 // support for AndroidX
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;

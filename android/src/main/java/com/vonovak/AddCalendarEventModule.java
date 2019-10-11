@@ -14,7 +14,7 @@ import android.content.Loader;
 import android.util.Log;
 
 // support for AndroidX
-import javax.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.*;
 
