@@ -67,8 +67,16 @@ eventConfig object:
 | allDay    | boolean |                                                                     |
 | url       | String  | iOS only                                                            |
 | notes     | String  | The notes (iOS) or description (Android) associated with the event. |
+| alert     | String  | Allow the user to set an alert, could be "0", "1", "2", "3", or none|
 
 The dates passed to this module are strings. If you use moment, you may get the right format via `momentInUTC.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')` the string may look eg. like this: `'2017-09-25T08:00:00.000Z'`.
+
+For the alert field, here is the specs : 
+- If you set `alert: "0"` => will add an alert at the startDate.
+- If you set `alert: "1"` => will add an alert 5 minutes before the startDate.
+- If you set `alert: "2"` => will add an alert 30 minutes before the startDate.
+- If you set `alert: "3"` => will add an alert 60 minutes before the startDate.
+- If alert is not set in the eventConfig, no alert will be set. 
 
 More options can be easily added, PRs are welcome!
 
