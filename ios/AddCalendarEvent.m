@@ -3,7 +3,6 @@
 
 @interface AddCalendarEvent()
 
-@property (nonatomic) EKCalendar *defaultCalendar;
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) BOOL calendarAccessGranted;
 @property (nonatomic) NSDictionary *eventOptions;
@@ -65,7 +64,6 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
     self = [super init];
     if (self != nil) {
         self.calendarAccessGranted = NO;
-        self.defaultCalendar = nil; // defaultCalendar not used in the module at this point
         [self resetPromises];
     }
     return self;
@@ -106,7 +104,6 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
 
 - (void)markCalendarAccessAsGranted
 {
-    self.defaultCalendar = [self getEventStoreInstance].defaultCalendarForNewEvents;
     self.calendarAccessGranted = YES;
     [self resolvePromise: @(YES)];
 }
@@ -140,15 +137,14 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     self.resolver = resolve;
     self.rejecter = reject;
     
-    AddCalendarEvent * __weak weakSelf = self;
     
     void (^showEventCreatingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
-        controller.eventStore = [weakSelf getEventStoreInstance];
-        controller.editViewDelegate = weakSelf;
-        [weakSelf assignNavbarColorsTo:controller.navigationBar];
-        [weakSelf presentViewController:controller];
+        controller.eventStore = [self getEventStoreInstance];
+        controller.editViewDelegate = self;
+        [self assignNavbarColorsTo:controller.navigationBar];
+        [self presentViewController:controller];
     };
     
     [self runIfAccessGranted:showEventCreatingController withEvent:[self createNewEventInstance]];
@@ -172,12 +168,10 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
     self.resolver = resolve;
     self.rejecter = reject;
     
-    AddCalendarEvent * __weak weakSelf = self;
-
     void (^showEventViewingController)(EKEvent *) = ^(EKEvent * event){
         EKEventViewController *controller = [[EKEventViewController alloc] init];
         controller.event = event;
-        controller.delegate = weakSelf;
+        controller.delegate = self;
         if (options[@"allowsEditing"]) {
             controller.allowsEditing = [RCTConvert BOOL:options[@"allowsEditing"]];
         }
@@ -186,8 +180,8 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         }
         
         UINavigationController *navBar = [[UINavigationController alloc] initWithRootViewController:controller];
-        [weakSelf assignNavbarColorsTo:navBar.navigationBar];
-        [weakSelf presentViewController:navBar];
+        [self assignNavbarColorsTo:navBar.navigationBar];
+        [self presentViewController:navBar];
     };
     
     [self runIfAccessGranted:showEventViewingController withEvent:[self getEditedEventInstance]];
@@ -223,15 +217,13 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     self.resolver = resolve;
     self.rejecter = reject;
     
-    AddCalendarEvent * __weak weakSelf = self;
-
     void (^showEventEditingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
-        controller.eventStore = [weakSelf getEventStoreInstance];
-        controller.editViewDelegate = weakSelf;
-        [weakSelf assignNavbarColorsTo:controller.navigationBar];
-        [weakSelf presentViewController:controller];
+        controller.eventStore = [self getEventStoreInstance];
+        controller.editViewDelegate = self;
+        [self assignNavbarColorsTo:controller.navigationBar];
+        [self presentViewController:controller];
     };
     
     [self runIfAccessGranted:showEventEditingController withEvent:[self getEditedEventInstance]];
