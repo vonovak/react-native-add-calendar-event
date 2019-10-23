@@ -4,7 +4,7 @@ This package alows you to start an activity (Android) or show a modal window (iO
 
 For managing calendar events without the UI for user to interact with, see [react-native-calendar-events](https://github.com/wmcmahan/react-native-calendar-events).
 
-<img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/example/android.gif" width="300" />
+<img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/images/ios.gif" width="300" hspace="60" /> <img src="https://raw.githubusercontent.com/vonovak/react-native-add-calendar-event/master/images/android.gif" width="300" />
 
 ## Getting started
 
@@ -18,23 +18,23 @@ or
 
 ### Mostly automatic installation
 
-1.  `react-native link react-native-add-calendar-event`
+1. (only RN < 0.60) `react-native link react-native-add-calendar-event`
 
-2.  add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
+2. add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
-3.  rebuild your project
+3. rebuild your project
 
-iOS note: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run `pod install`. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
+iOS note for RN < 0.60: If you use pods, `react-native link` will probably add the podspec to your podfile, in which case you need to run `pod install`. If not, please verify that the library is under `link binary with libraries` in the build settings in Xcode (see manual installation notes).
 
 ## Quick example
 
 See the example folder for a demo app.
 
 ```js
-import * as AddCalendarEvent from 'react-native-add-calendar-event';
+import * as AddCalendarEvent from "react-native-add-calendar-event";
 
 const eventConfig = {
-  title,
+  title
   // and other options
 };
 
@@ -58,15 +58,16 @@ call `presentEventCreatingDialog(eventConfig)`
 
 eventConfig object:
 
-| Property  | Value   | Note                                                                |
-| :-------- | :------ | :------------------------------------------------------------------ |
-| title     | String  |                                                                     |
-| startDate | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
-| endDate   | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
-| location  | String  |                                                                     |
-| allDay    | boolean |                                                                     |
-| url       | String  | iOS only                                                            |
-| notes     | String  | The notes (iOS) or description (Android) associated with the event. |
+| Property         | Value   | Note                                                                |
+| :--------------- | :------ | :------------------------------------------------------------------ |
+| title            | String  |                                                                     |
+| startDate        | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
+| endDate          | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
+| location         | String  |                                                                     |
+| allDay           | boolean |                                                                     |
+| url              | String  | iOS only                                                            |
+| notes            | String  | The notes (iOS) or description (Android) associated with the event. |
+| navigationBarIOS | Object  | config object for the navbar, see below                             |
 
 The dates passed to this module are strings. If you use moment, you may get the right format via `momentInUTC.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')` the string may look eg. like this: `'2017-09-25T08:00:00.000Z'`.
 
