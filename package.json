@@ -5,16 +5,14 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "react-native"
   ],
   "author": "Vojtech Novak",
   "license": "MIT",
-  "peerDependencies": {
-    "react-native": "*"
-  },
+  "peerDependencies": {},
   "directories": {
     "example": "example"
   },
@@ -25,5 +23,10 @@
   "bugs": {
     "url": "https://github.com/vonovak/react-native-add-calendar-event/issues"
   },
-  "homepage": "https://github.com/vonovak/react-native-add-calendar-event#readme"
+  "homepage": "https://github.com/vonovak/react-native-add-calendar-event#readme",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "metro-react-native-babel-preset": "^0.56.0",
+    "react-native": "^0.61.2"
+  }
 }

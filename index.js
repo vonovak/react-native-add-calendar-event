@@ -19,18 +19,26 @@ export const presentEventCreatingDialog = options => {
 };
 
 const processColorsIOS = config => {
-  if (Platform.OS === 'android' || !config) {
+  if (Platform.OS === 'android' || !config || !config.navigationBarIOS) {
     return config;
+  } else {
+    return transformConfigColors(config);
   }
+};
+
+export const transformConfigColors = config => {
+  const transformedKeys = ['tintColor', 'barTintColor', 'backgroundColor', 'titleColor'];
   const { navigationBarIOS } = config;
-  if (navigationBarIOS) {
-    const { tintColor, backgroundColor, barTintColor, titleColor } = navigationBarIOS;
-    navigationBarIOS.tintColor = tintColor && processColor(tintColor);
-    navigationBarIOS.backgroundColor = backgroundColor && processColor(backgroundColor);
-    navigationBarIOS.barTintColor = barTintColor && processColor(barTintColor);
-    navigationBarIOS.titleColor = titleColor && processColor(titleColor);
-  }
-  return config;
+  const processedColors = Object.keys(navigationBarIOS)
+    .filter(key => transformedKeys.includes(key))
+    .reduce(
+      (accumulator, key) => ({ ...accumulator, [key]: processColor(navigationBarIOS[key]) }),
+      {}
+    );
+
+  const configCopy = { ...config };
+  configCopy.navigationBarIOS = { ...configCopy.navigationBarIOS, ...processedColors };
+  return configCopy;
 };
 
 const withPermissionsCheck = toCallWhenPermissionGranted => {
