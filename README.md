@@ -8,8 +8,6 @@ For managing calendar events without the UI for user to interact with, see [reac
 
 ## Getting started
 
-> Note: the readme covers v2, see [this](https://github.com/vonovak/react-native-add-calendar-event/tree/1.x) for the v1 docs.
-
 `npm install react-native-add-calendar-event --save`
 
 or
@@ -31,10 +29,10 @@ iOS note for RN < 0.60: If you use pods, `react-native link` will probably add t
 See the example folder for a demo app.
 
 ```js
-import * as AddCalendarEvent from "react-native-add-calendar-event";
+import * as AddCalendarEvent from 'react-native-add-calendar-event';
 
 const eventConfig = {
-  title
+  title,
   // and other options
 };
 
