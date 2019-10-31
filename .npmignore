@@ -8,15 +8,18 @@ images
 .npmignore
 yarn.lock
 
+__tests__/
+
+# android / iOS
+build
+
 # Android/IntelliJ
-build/
 .idea
 .gradle
 local.properties
 *.iml
 
 # Xcode
-build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
