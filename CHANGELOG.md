@@ -1,3 +1,7 @@
+## 3.0.0
+
+- adds support for RN >= 0.60 with autolinking. The api of the module and the internal implementation didn't chnage
+
 ## 2.3.1
 
 - improved TS typings: [PR](https://github.com/vonovak/react-native-add-calendar-event/pull/68) by @uncledent
