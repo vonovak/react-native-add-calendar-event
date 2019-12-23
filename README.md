@@ -18,6 +18,8 @@ or
 
 1. (only RN < 0.60) `react-native link react-native-add-calendar-event`
 
+(only RN >= 0.60) run `pod install` in the ios folder
+
 2. add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
 3. rebuild your project
