@@ -1,3 +1,11 @@
+## 3.0.2
+
+- Added support for Outlook (Edited Android Intent type) [#102](https://github.com/vonovak/react-native-add-calendar-event/pull/102)
+
+## 3.0.1
+
+- Fix call api.cache when api is undefined [#99](https://github.com/vonovak/react-native-add-calendar-event/pull/99)
+
 ## 3.0.0
 
 - adds support for RN >= 0.60 with autolinking. The api of the module and the internal implementation didn't chnage
