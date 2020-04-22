@@ -86,7 +86,7 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         try {
             setPriorEventId(getCurrentActivity());
 
-            final Intent calendarIntent = new Intent(Intent.ACTION_EDIT);
+            final Intent calendarIntent = new Intent(Intent.ACTION_INSERT);
             calendarIntent
                     .setType("vnd.android.cursor.item/event")
                     .putExtra("title", config.getString("title"));
