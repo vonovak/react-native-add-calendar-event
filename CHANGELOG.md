@@ -1,3 +1,7 @@
+## 4.0.0
+
+- breaking: fix podspec for XCode 12 [#111](https://github.com/vonovak/react-native-add-calendar-event/pull/111)
+
 ## 3.0.2
 
 - Added support for Outlook (Edited Android Intent type) [#102](https://github.com/vonovak/react-native-add-calendar-event/pull/102)
