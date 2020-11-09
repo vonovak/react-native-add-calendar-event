@@ -159,7 +159,8 @@ It is recommended to not rely on the standard `Date` object and instead use some
 
 #### Changing the language of the iOS dialog
 
-see [StackOverflow answer](https://stackoverflow.com/questions/18425945/xcode-5-and-localization-of-xib-files)
+In the Project editor, choose the project name under Project and click Info. Under Localizations, click the Add button (+), then choose a language and region combination from the pop-up menu.
+https://developer.apple.com/documentation/xcode/localizing_your_app
 
 ### Manual installation
 
