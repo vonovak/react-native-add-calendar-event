@@ -159,7 +159,8 @@ It is recommended to not rely on the standard `Date` object and instead use some
 
 #### Changing the language of the iOS dialog
 
-In the Project editor, choose the project name under Project and click Info. Under Localizations, click the Add button (+), then choose a language and region combination from the pop-up menu.
+1.  In the Project editor, choose the project name under Project and click Info. Under Localizations, click the Add button (+), then choose a language and region combination from the pop-up menu.
+2.  Set the Localization native development region in your info.plist to the desired language you want in this view controller.
 https://developer.apple.com/documentation/xcode/localizing_your_app
 
 ### Manual installation
