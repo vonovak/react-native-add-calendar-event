@@ -28,6 +28,7 @@ declare module "react-native-add-calendar-event" {
      */
     notes?: string;
     navigationBarIOS?: NavigationBarIOS;
+    recurrence?: string;
   }
 
   /**

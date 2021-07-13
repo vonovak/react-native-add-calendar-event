@@ -18,6 +18,7 @@ import com.facebook.react.bridge.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 import static com.vonovak.Utils.doesEventExist;
 import static com.vonovak.Utils.extractLastEventId;
@@ -111,6 +112,12 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
 
             if (config.hasKey("allDay")) {
                 calendarIntent.putExtra("allDay", config.getBoolean("allDay"));
+            }
+            if (config.hasKey("recurrence")) {
+                String rule = createRecurrenceRule(config.getString("recurrence"), null, null, null, null, null, null);
+                if (rule != null) {
+                    calendarIntent.putExtra(CalendarContract.Events.RRULE, rule);
+                }
             }
 
 
@@ -267,6 +274,58 @@ public class AddCalendarEventModule extends ReactContextBaseJavaModule implement
         } else {
             Log.d(ADD_EVENT_MODULE_NAME, "activity was null when attempting to destroy the loader");
         }
+    }
+
+    private String createRecurrenceRule(String recurrence, Integer interval, String endDate, Integer occurrence, ReadableArray daysOfWeek, String weekStart, Integer weekPositionInMonth) {
+        String rrule;
+
+        if (recurrence.equals("daily")) {
+            rrule=  "FREQ=DAILY";
+        } else if (recurrence.equals("weekly")) {
+            rrule = "FREQ=WEEKLY";
+        }  else if (recurrence.equals("monthly")) {
+            rrule = "FREQ=MONTHLY";
+        } else if (recurrence.equals("yearly")) {
+            rrule = "FREQ=YEARLY";
+        } else {
+            return null;
+        }
+
+        if (daysOfWeek != null && recurrence.equals("weekly")) {
+            rrule += ";BYDAY=" + ReadableArrayToString(daysOfWeek);
+        }
+
+        if (recurrence.equals("monthly") && daysOfWeek != null && weekPositionInMonth != null) {
+            rrule += ";BYSETPOS=" + weekPositionInMonth;
+            rrule += ";BYDAY=" + ReadableArrayToString(daysOfWeek);
+        }
+
+        if (weekStart != null) {
+            rrule += ";WKST=" + weekStart;
+        }
+
+        if (interval != null) {
+            rrule += ";INTERVAL=" + interval;
+        }
+
+        if (endDate != null) {
+            rrule += ";UNTIL=" + endDate;
+        } else if (occurrence != null) {
+            rrule += ";COUNT=" + occurrence;
+        }
+
+        return rrule;
+    }
+
+    private String ReadableArrayToString (ReadableArray strArr) {
+        ArrayList<Object> array = strArr.toArrayList();
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < array.size(); i++) {
+            strBuilder.append(array.get(i).toString() + ',');
+        }
+        String newString = strBuilder.toString();
+        newString = newString.substring(0, newString.length() - 1);
+        return newString;
     }
 
     @Override
