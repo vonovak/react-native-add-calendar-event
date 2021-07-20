@@ -11,7 +11,7 @@
   "dependencies": {
     "moment": "^2.24.0",
     "react": "16.8.1",
-    "react-native": "0.61.3",
+    "react-native": "0.62.3",
     "react-native-add-calendar-event": "https://github.com/vonovak/react-native-add-calendar-event.git"
   },
   "devDependencies": {
