@@ -20,6 +20,10 @@ declare module "react-native-add-calendar-event" {
     location?: string;
     allDay?: boolean;
     /**
+     * in minutes
+     */
+    reminder?: string;
+    /**
      * iOS only
      */
     url?: string;
