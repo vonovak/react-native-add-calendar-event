@@ -14,7 +14,7 @@ const withAddCalendarEvent: ConfigPlugin<void | ConfigPluginProps> = (config, pr
             config.modResults.NSCalendarsUsageDescription = props?.calendarPermission ?? DEFAULT_CALENDAR_PERMISSION;
         }
 
-        if (!config.modResults.NSCalendarsUsageDescription) {
+        if (!config.modResults.NSContactsUsageDescription) {
             config.modResults.NSContactsUsageDescription = props?.contactsPermission ?? DEFAULT_CONTACTS_PERMISSION;
         }
         return config;
