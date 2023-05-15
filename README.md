@@ -18,6 +18,10 @@ or
 
 `yarn add react-native-add-calendar-event`
 
+## Expo Support
+
+This package is not available in the [Expo Go](https://expo.io/client) app. Learn how you can use it with [custom dev clients](/plugin/install.md).
+
 ### Mostly automatic installation
 
 1. (only RN < 0.60) `react-native link react-native-add-calendar-event`
