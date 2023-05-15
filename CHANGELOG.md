@@ -1,6 +1,6 @@
 ## UNRELEASED
 
-- Add Expo config plugin ([#number](https://github.com/...))
+- Add Expo config plugin ([#177](https://github.com/vonovak/react-native-add-calendar-event/pull/177/))
 
 ## 4.0.0
 
