@@ -6,7 +6,6 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "jest",
-    "prepare": "yarn build:plugin",
     "build:plugin": "tsc --build plugin"
   },
   "keywords": [
