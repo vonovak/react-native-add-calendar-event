@@ -43,3 +43,7 @@ npm-debug.log
 yarn-error.log
 yarn.lock
 package-lock.json
+
+# Config plugin
+plugin/src
+plugin/tsconfig.json

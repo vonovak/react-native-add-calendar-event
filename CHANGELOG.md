@@ -1,3 +1,7 @@
+## 4.1.0
+
+- Add Expo config plugin ([#177](https://github.com/vonovak/react-native-add-calendar-event/pull/177/))
+
 ## 4.0.0
 
 - breaking: fix podspec for XCode 12 [#111](https://github.com/vonovak/react-native-add-calendar-event/pull/111)
