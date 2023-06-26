@@ -1,6 +1,6 @@
 {
   "name": "react-native-add-calendar-event",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "creating events in react native using the standard iOS / Android dialogs",
   "main": "index.js",
   "types": "index.d.ts",
