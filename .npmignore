@@ -12,6 +12,7 @@ __tests__/
 
 # android / iOS
 build
+!plugin/build
 
 # Android/IntelliJ
 .idea
