@@ -73,6 +73,7 @@ eventConfig object:
 | endDate          | String  | in UTC, format: 'YYYY-MM-DDTHH:mm:ss.SSSZ'                          |
 | location         | String  |                                                                     |
 | allDay           | boolean |                                                                     |
+| recurrence       | String  | The simple recurrence frequency of the calendar event daily, weekly, monthly, yearly or none.|
 | url              | String  | iOS only                                                            |
 | notes            | String  | The notes (iOS) or description (Android) associated with the event. |
 | navigationBarIOS | Object  | config object for the navbar, see below                             |
