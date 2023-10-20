@@ -5,6 +5,7 @@
 
 @property (nonatomic) UIViewController *viewController;
 @property (nonatomic) BOOL calendarAccessGranted;
+@property (nonatomic) BOOL calendarWriteAccessGranted;
 @property (nonatomic) NSDictionary *eventOptions;
 
 @property (nonatomic) RCTPromiseResolveBlock resolver;
@@ -21,7 +22,7 @@
 }
 
 RCT_EXPORT_MODULE()
-    
+
 + (BOOL)requiresMainQueueSetup
 {
     return NO;
@@ -72,29 +73,36 @@ static NSString *const MODULE_NAME= @"AddCalendarEvent";
 #pragma mark -
 #pragma mark Calendar permission methods
 
-RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.resolver = resolve;
     self.rejecter = reject;
-    
-    [self checkEventStoreAccessForCalendar];
+
+    [self checkEventStoreAccessForCalendar:writeOnly];
 }
 
-- (void)checkEventStoreAccessForCalendar
+- (void)checkEventStoreAccessForCalendar: (BOOL) writeOnly
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-    
+
     switch (status)
     {
-        case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
+        case EKAuthorizationStatusWriteOnly:
+            if (writeOnly) {
+                [self markCalendarAccessAsGranted:writeOnly];
+            } else {
+                [self requestCalendarAccess:writeOnly];
+            }
             break;
-        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
+        case EKAuthorizationStatusAuthorized:
+            [self markCalendarAccessAsGranted:writeOnly];
+            break;
+        case EKAuthorizationStatusNotDetermined:
+            [self requestCalendarAccess:writeOnly];
             break;
         case EKAuthorizationStatusDenied:
         case EKAuthorizationStatusRestricted:
-        {
             [self rejectCalendarPermission];
-        }
             break;
         default:
             [self rejectCalendarPermission];
@@ -102,9 +110,12 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
     }
 }
 
-- (void)markCalendarAccessAsGranted
+- (void)markCalendarAccessAsGranted: (BOOL) writeOnly
 {
-    self.calendarAccessGranted = YES;
+    self.calendarWriteAccessGranted = YES;
+    if (!writeOnly) {
+        self.calendarAccessGranted = YES;
+    }
     [self resolvePromise: @(YES)];
 }
 
@@ -113,19 +124,25 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
     [self resolvePromise: @(NO)];
 }
 
-- (void)requestCalendarAccess
+- (void)requestCalendarAccess: (BOOL) writeOnly
 {
     AddCalendarEvent * __weak weakSelf = self;
-    [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
-     {
-         dispatch_async(dispatch_get_main_queue(), ^{
-             if (granted) {
-                 [weakSelf markCalendarAccessAsGranted];
-             } else {
-                 [weakSelf rejectCalendarPermission];
-             }
-         });
-     }];
+
+    void (^callback)(BOOL, NSError *) = ^(BOOL granted, NSError *error){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (granted) {
+                [weakSelf markCalendarAccessAsGranted:writeOnly];
+            } else {
+                [weakSelf rejectCalendarPermission];
+            }
+        });
+    };
+
+    if (writeOnly) {
+        [[self getEventStoreInstance] requestWriteOnlyAccessToEventsWithCompletion: callback];
+    } else {
+        [[self getEventStoreInstance] requestFullAccessToRemindersWithCompletion: callback];
+    }
 }
 
 #pragma mark -
@@ -136,8 +153,8 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    
-    
+
+
     void (^showEventCreatingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
@@ -146,8 +163,8 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
         [self assignNavbarColorsTo:controller.navigationBar];
         [self presentViewController:controller];
     };
-    
-    [self runIfAccessGranted:showEventCreatingController withEvent:[self createNewEventInstance]];
+
+    [self runIfWriteAccessGranted:showEventCreatingController withEvent:[self createNewEventInstance]];
 }
 
 - (void)runIfAccessGranted: (void (^)(EKEvent *))codeBlock withEvent: (EKEvent *) event
@@ -162,12 +179,24 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     }
 }
 
+- (void)runIfWriteAccessGranted: (void (^)(EKEvent *))codeBlock withEvent: (EKEvent *) event
+{
+    if (self.calendarWriteAccessGranted && event) {
+        codeBlock(event);
+    } else if (self.calendarAccessGranted && !event) {
+        NSString *evtId = self.eventOptions[_eventId];
+        [self rejectPromise:@"eventNotFound" withMessage:[NSString stringWithFormat:@"event with id %@ not found", evtId] withError:nil];
+    } else {
+        [self rejectPromise:@"accessNotGranted" withMessage:@"accessNotGranted" withError:nil];
+    }
+}
+
 RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    
+
     void (^showEventViewingController)(EKEvent *) = ^(EKEvent * event){
         EKEventViewController *controller = [[EKEventViewController alloc] init];
         controller.event = event;
@@ -178,12 +207,12 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         if (options[@"allowsCalendarPreview"]) {
             controller.allowsCalendarPreview = [RCTConvert BOOL:options[@"allowsCalendarPreview"]];
         }
-        
+
         UINavigationController *navBar = [[UINavigationController alloc] initWithRootViewController:controller];
         [self assignNavbarColorsTo:navBar.navigationBar];
         [self presentViewController:navBar];
     };
-    
+
     [self runIfAccessGranted:showEventViewingController withEvent:[self getEditedEventInstance]];
 }
 
@@ -216,7 +245,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-    
+
     void (^showEventEditingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
@@ -225,7 +254,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
         [self assignNavbarColorsTo:controller.navigationBar];
         [self presentViewController:controller];
     };
-    
+
     [self runIfAccessGranted:showEventEditingController withEvent:[self getEditedEventInstance]];
 }
 
@@ -248,7 +277,7 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 
     event.title = [RCTConvert NSString:options[_title]];
     event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
-    
+
     if (options[_startDate]) {
         event.startDate = [RCTConvert NSDate:options[_startDate]];
     }

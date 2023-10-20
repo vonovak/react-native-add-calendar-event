@@ -22,13 +22,13 @@ or
 
 This package is not available in the [Expo Go](https://expo.io/client) app. Learn how you can use it with [custom dev clients](/plugin/install.md).
 
-### Mostly automatic installation
+## Mostly automatic installation
 
 1. (only RN < 0.60) `react-native link react-native-add-calendar-event`
 
 (only RN >= 0.60) run `pod install` in the ios folder
 
-2. add `NSCalendarsUsageDescription` and `NSContactsUsageDescription` keys to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
+2. add `NSCalendarsWriteOnlyAccessUsageDescription` or `NSCalendarsFullAccessUsageDescription` (for edit/view access) to your `Info.plist` file. The string value associated with the key will be used when asking user for calendar permission.
 
 3. rebuild your project
 
@@ -39,7 +39,7 @@ iOS note for RN < 0.60: If you use pods, `react-native link` will probably add t
 See the example folder for a demo app.
 
 ```js
-import * as AddCalendarEvent from 'react-native-add-calendar-event';
+import * as AddCalendarEvent from "react-native-add-calendar-event";
 
 const eventConfig = {
   title,
@@ -47,13 +47,18 @@ const eventConfig = {
 };
 
 AddCalendarEvent.presentEventCreatingDialog(eventConfig)
-  .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
-    // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
-    // These are two different identifiers on iOS.
-    // On Android, where they are both equal and represent the event id, also strings.
-    // when { action: 'CANCELED' } is returned, the dialog was dismissed
-    console.warn(JSON.stringify(eventInfo));
-  })
+  .then(
+    (eventInfo: {
+      calendarItemIdentifier: string,
+      eventIdentifier: string,
+    }) => {
+      // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+      // These are two different identifiers on iOS.
+      // On Android, where they are both equal and represent the event id, also strings.
+      // when { action: 'CANCELED' } is returned, the dialog was dismissed
+      console.warn(JSON.stringify(eventInfo));
+    }
+  )
   .catch((error: string) => {
     // handle error such as when user rejected permissions
     console.warn(error);
