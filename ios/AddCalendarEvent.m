@@ -84,6 +84,7 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromise
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     switch (status)
     {
+#if defined(__IPHONE_17_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >=__IPHONE_17_0
         case EKAuthorizationStatusWriteOnly:
             if (writeOnly) {
                 [self markCalendarAccessAsGranted:writeOnly];
@@ -91,6 +92,7 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromise
                 [self requestCalendarAccess:writeOnly];
             }
             break;
+#endif
         case EKAuthorizationStatusAuthorized:
             [self markCalendarAccessAsGranted:writeOnly];
             break;
@@ -139,7 +141,7 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromise
         if (writeOnly) {
             [[self getEventStoreInstance] requestWriteOnlyAccessToEventsWithCompletion: callback];
         } else {
-            [[self getEventStoreInstance] requestFullAccessToRemindersWithCompletion: callback];
+            [[self getEventStoreInstance] requestFullAccessToEventsWithCompletion: callback];
         }
     } else {
         [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion: callback];
