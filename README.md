@@ -39,7 +39,7 @@ iOS note for RN < 0.60: If you use pods, `react-native link` will probably add t
 See the example folder for a demo app.
 
 ```js
-import * as AddCalendarEvent from "react-native-add-calendar-event";
+import * as AddCalendarEvent from 'react-native-add-calendar-event';
 
 const eventConfig = {
   title,
@@ -47,18 +47,13 @@ const eventConfig = {
 };
 
 AddCalendarEvent.presentEventCreatingDialog(eventConfig)
-  .then(
-    (eventInfo: {
-      calendarItemIdentifier: string,
-      eventIdentifier: string,
-    }) => {
-      // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
-      // These are two different identifiers on iOS.
-      // On Android, where they are both equal and represent the event id, also strings.
-      // when { action: 'CANCELED' } is returned, the dialog was dismissed
-      console.warn(JSON.stringify(eventInfo));
-    }
-  )
+  .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
+    // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
+    // These are two different identifiers on iOS.
+    // On Android, where they are both equal and represent the event id, also strings.
+    // when { action: 'CANCELED' } is returned, the dialog was dismissed
+    console.warn(JSON.stringify(eventInfo));
+  })
   .catch((error: string) => {
     // handle error such as when user rejected permissions
     console.warn(error);

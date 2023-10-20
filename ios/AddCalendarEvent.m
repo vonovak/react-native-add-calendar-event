@@ -22,7 +22,6 @@
 }
 
 RCT_EXPORT_MODULE()
-
 + (BOOL)requiresMainQueueSetup
 {
     return NO;
@@ -77,14 +76,12 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromise
 {
     self.resolver = resolve;
     self.rejecter = reject;
-
     [self checkEventStoreAccessForCalendar:writeOnly];
 }
 
 - (void)checkEventStoreAccessForCalendar: (BOOL) writeOnly
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
-
     switch (status)
     {
         case EKAuthorizationStatusWriteOnly:
@@ -153,8 +150,6 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-
-
     void (^showEventCreatingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
@@ -163,7 +158,6 @@ RCT_EXPORT_METHOD(presentEventCreatingDialog:(NSDictionary *)options resolver:(R
         [self assignNavbarColorsTo:controller.navigationBar];
         [self presentViewController:controller];
     };
-
     [self runIfWriteAccessGranted:showEventCreatingController withEvent:[self createNewEventInstance]];
 }
 
@@ -196,7 +190,6 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-
     void (^showEventViewingController)(EKEvent *) = ^(EKEvent * event){
         EKEventViewController *controller = [[EKEventViewController alloc] init];
         controller.event = event;
@@ -207,12 +200,10 @@ RCT_EXPORT_METHOD(presentEventViewingDialog:(NSDictionary *)options resolver:(RC
         if (options[@"allowsCalendarPreview"]) {
             controller.allowsCalendarPreview = [RCTConvert BOOL:options[@"allowsCalendarPreview"]];
         }
-
         UINavigationController *navBar = [[UINavigationController alloc] initWithRootViewController:controller];
         [self assignNavbarColorsTo:navBar.navigationBar];
         [self presentViewController:navBar];
     };
-
     [self runIfAccessGranted:showEventViewingController withEvent:[self getEditedEventInstance]];
 }
 
@@ -245,7 +236,6 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     self.eventOptions = options;
     self.resolver = resolve;
     self.rejecter = reject;
-
     void (^showEventEditingController)(EKEvent *) = ^(EKEvent * event){
         EKEventEditViewController *controller = [[EKEventEditViewController alloc] init];
         controller.event = event;
@@ -254,7 +244,6 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
         [self assignNavbarColorsTo:controller.navigationBar];
         [self presentViewController:controller];
     };
-
     [self runIfAccessGranted:showEventEditingController withEvent:[self getEditedEventInstance]];
 }
 
@@ -277,7 +266,6 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
 
     event.title = [RCTConvert NSString:options[_title]];
     event.location = options[_location] ? [RCTConvert NSString:options[_location]] : nil;
-
     if (options[_startDate]) {
         event.startDate = [RCTConvert NSDate:options[_startDate]];
     }
