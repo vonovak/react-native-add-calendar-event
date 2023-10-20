@@ -134,12 +134,19 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(BOOL)writeOnly resolver:(RCTPromise
             }
         });
     };
-
-    if (writeOnly) {
-        [[self getEventStoreInstance] requestWriteOnlyAccessToEventsWithCompletion: callback];
+#if defined(__IPHONE_17_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >=__IPHONE_17_0
+    if (@available(iOS 17.0, *)) {
+        if (writeOnly) {
+            [[self getEventStoreInstance] requestWriteOnlyAccessToEventsWithCompletion: callback];
+        } else {
+            [[self getEventStoreInstance] requestFullAccessToRemindersWithCompletion: callback];
+        }
     } else {
-        [[self getEventStoreInstance] requestFullAccessToRemindersWithCompletion: callback];
+        [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion: callback];
     }
+#else
+    [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion: callback];
+#endif
 }
 
 #pragma mark -
