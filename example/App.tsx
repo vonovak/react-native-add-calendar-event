@@ -4,11 +4,12 @@
  */
 
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Button, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Button, TextInput, Platform } from 'react-native';
+import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
-const utcDateToString = (momentInUTC: moment): string => {
+const utcDateToString = (momentInUTC: Moment): string => {
   let s = moment.utc(momentInUTC).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
   // console.warn(s);
   return s;
@@ -58,21 +59,32 @@ export default class EventDemo extends Component {
     );
   }
 
-  static addToCalendar = (title: string, startDateUTC: moment) => {
-    const eventConfig = {
+  static addToCalendar = (title: string, startDateUTC: Moment) => {
+    const eventConfig: AddCalendarEvent.CreateOptions = {
       title,
       startDate: utcDateToString(startDateUTC),
       endDate: utcDateToString(moment.utc(startDateUTC).add(1, 'hours')),
       notes: 'tasty!',
       navigationBarIOS: {
+        translucent: false,
         tintColor: 'orange',
+        barTintColor: 'orange',
         backgroundColor: 'green',
         titleColor: 'blue',
       },
     };
 
-    AddCalendarEvent.presentEventCreatingDialog(eventConfig)
-      .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
+    check(Platform.select({
+      ios: PERMISSIONS.IOS.CALENDARS_WRITE_ONLY,
+      android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+    }))
+      .then((result) => {
+        if (result == RESULTS.GRANTED) {
+          return AddCalendarEvent.presentEventCreatingDialog(eventConfig);
+        }
+        throw new Error(`This app doesn't have permission`);
+      })
+      .then((eventInfo) => {
         // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
         // These are two different identifiers on iOS.
         // On Android, where they are both equal and represent the event id, also strings.
@@ -90,7 +102,16 @@ export default class EventDemo extends Component {
       eventId,
     };
 
-    AddCalendarEvent.presentEventEditingDialog(eventConfig)
+    check(Platform.select({
+      ios: PERMISSIONS.IOS.CALENDARS,
+      android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+    }))
+      .then((result) => {
+        if (result == RESULTS.GRANTED) {
+          return AddCalendarEvent.presentEventEditingDialog(eventConfig);
+        }
+        throw new Error(`This app doesn't have permission`);
+      })
       .then(eventInfo => {
         console.warn(JSON.stringify(eventInfo));
       })
@@ -101,17 +122,29 @@ export default class EventDemo extends Component {
   };
 
   static showCalendarEventWithId = (eventId: string) => {
-    const eventConfig = {
+    const eventConfig: AddCalendarEvent.ViewOptions = {
       eventId,
       allowsEditing: true,
       allowsCalendarPreview: true,
       navigationBarIOS: {
+        translucent: false,
         tintColor: 'orange',
+        barTintColor: 'orange',
         backgroundColor: 'green',
+        titleColor: 'blue',
       },
     };
 
-    AddCalendarEvent.presentEventViewingDialog(eventConfig)
+    check(Platform.select({
+      ios: PERMISSIONS.IOS.CALENDARS,
+      android: PERMISSIONS.ANDROID.READ_CALENDAR,
+    }))
+      .then((result) => {
+        if (result == RESULTS.GRANTED) {
+          return AddCalendarEvent.presentEventViewingDialog(eventConfig);
+        }
+        throw new Error(`This app doesn't have permission`);
+      })
       .then(eventInfo => {
         console.warn(JSON.stringify(eventInfo));
       })

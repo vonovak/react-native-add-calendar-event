@@ -4,7 +4,7 @@ The author of this package does not use it in production and does not have free 
 
 # react-native-add-calendar-event
 
-This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its id, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its ID, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
 
 For managing calendar events without the UI for user to interact with, see [react-native-calendar-events](https://github.com/wmcmahan/react-native-calendar-events).
 
@@ -17,6 +17,10 @@ For managing calendar events without the UI for user to interact with, see [reac
 or
 
 `yarn add react-native-add-calendar-event`
+
+## Permissions
+
+You'll also need to install and setup [react-native-permissions](https://github.com/zoontek/react-native-permissions/), or similar, to request calendar permissions for your app/
 
 ## Expo Support
 
@@ -38,15 +42,31 @@ iOS note for RN < 0.60: If you use pods, `react-native link` will probably add t
 
 See the example folder for a demo app.
 
+Using `react-native-permissions` to request calendar permission before creating a calendar event.
+
 ```js
+import { Platform } from 'react-native';
 import * as AddCalendarEvent from 'react-native-add-calendar-event';
+import * as Permissions from 'react-native-permissions';
+
 
 const eventConfig = {
   title,
   // and other options
 };
 
-AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+Permissions.request(
+  Platform.select({
+    ios: Permissions.PERMISSIONS.IOS.CALENDARS_WRITE_ONLY,
+    android: Permissions.PERMISSIONS.ANDROID.WRITE_CALENDAR,
+  })
+)
+  .then(result => {
+    if (result !== Permissions.RESULTS.GRANTED) {
+      throw new Error(`No permission: ${result}`);
+    }
+    return AddCalendarEvent.presentEventCreatingDialog(eventConfig)
+  })
   .then((eventInfo: { calendarItemIdentifier: string, eventIdentifier: string }) => {
     // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
     // These are two different identifiers on iOS.

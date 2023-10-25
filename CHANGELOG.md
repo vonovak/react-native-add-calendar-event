@@ -1,3 +1,11 @@
+## 5.0.0
+
+- Fix for iOS 17+
+
+**BREAKING**
+
+- Removed built-in calendar permission checks. Now we recommend you use [react-native-permissions](https://github.com/zoontek/react-native-permissions) (version 4.0.0+).
+
 ## 4.1.0
 
 - Add Expo config plugin ([#177](https://github.com/vonovak/react-native-add-calendar-event/pull/177/))
