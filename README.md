@@ -20,7 +20,7 @@ or
 
 ## Permissions
 
-You'll also need to install and setup [react-native-permissions](https://github.com/zoontek/react-native-permissions/), or similar, to request calendar permissions for your app/
+You'll also need to install and setup [react-native-permissions](https://github.com/zoontek/react-native-permissions/), or similar, to request calendar permissions for your app.
 
 ## Expo Support
 
