@@ -31,7 +31,7 @@ if linkage != nil
 end
 
 
-target 'eventsdemo' do
+target 'EventsDemo' do
   config = use_native_modules!
 
   # Setup Permissions for react-native-permissions
@@ -57,7 +57,7 @@ target 'eventsdemo' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'eventsdemoTests' do
+  target 'EventsDemoTests' do
     inherit! :complete
     # Pods for testing
   end

@@ -36,11 +36,42 @@ You need to add the following to `android/app/src/main/AndroidManifest.xml`, in 
 
 Follow [these instructions](https://github.com/zoontek/react-native-permissions/tree/v4#ios), and then make sure `Calendars` and `CalendarsWriteOnly` are included in the permissions list.
 
+`Podfile`
+
+```js
+def node_require(script)
+  # Resolve script with node to allow for hoisting
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
+
+node_require('react-native/scripts/react_native_pods.rb')
+node_require('react-native-permissions/scripts/setup.rb')
+
+...
+
+target 'EventsDemo' do
+  setup_permissions([
+    'Calendars',
+    'CalendarsWriteOnly'
+  ]);
+end
 ```
-setup_permissions([
-   'Calendars',
-   'CalendarsWriteOnly',
-])
+
+`Info.plist'
+
+```plist
+<key>NSCalendarsUsageDescription</key>
+<string> YOUR DESCRIPTION HERE - why do you need this permission </string>
+
+<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+<string> YOUR DESCRIPTION HERE - why do you need this permission </string>
+
+<key>NSCalendarsFullAccessUsageDescription</key>
+<string> YOUR DESCRIPTION HERE - why do you need this permission </string>
 ```
 
 ### App JS

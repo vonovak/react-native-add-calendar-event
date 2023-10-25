@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>eventsdemo</string>
+	<string>EventsDemo</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -51,9 +51,8 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-
-  <key>NSCalendarsUsageDescription</key>
-  <string>Calendar test</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Calendar test</string>
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>Calendar test</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>

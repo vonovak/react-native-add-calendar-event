@@ -23,7 +23,6 @@ import moment, {Moment} from 'moment';
 
 const utcDateToString = (momentInUTC: Moment): string => {
   let s = moment.utc(momentInUTC).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-  // console.warn(s);
   return s;
 };
 
@@ -47,10 +46,12 @@ export default function EventDemo() {
       },
     };
 
-    request(Platform.select({
-      ios: PERMISSIONS.IOS.CALENDARS_WRITE_ONLY,
-      android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-    }) as Permission)
+    request(
+      Platform.select({
+        ios: PERMISSIONS.IOS.CALENDARS,
+        android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+      }) as Permission,
+    )
       .then(result => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
@@ -79,10 +80,12 @@ export default function EventDemo() {
       eventId,
     };
 
-    request(Platform.select({
-      ios: PERMISSIONS.IOS.CALENDARS,
-      android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-    }) as Permission)
+    request(
+      Platform.select({
+        ios: PERMISSIONS.IOS.CALENDARS,
+        android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+      }) as Permission,
+    )
       .then(result => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
@@ -112,10 +115,12 @@ export default function EventDemo() {
       },
     };
 
-    request(Platform.select({
-      ios: PERMISSIONS.IOS.CALENDARS,
-      android: PERMISSIONS.ANDROID.READ_CALENDAR,
-    }) as Permission)
+    request(
+      Platform.select({
+        ios: PERMISSIONS.IOS.CALENDARS,
+        android: PERMISSIONS.ANDROID.READ_CALENDAR,
+      }) as Permission,
+    )
       .then(result => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
@@ -134,13 +139,7 @@ export default function EventDemo() {
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Event title: {eventTitle}</Text>
-      <Text>
-        date:{' '}
-        {moment
-          .utc(nowUTC)
-          .local()
-          .format('lll')}
-      </Text>
+      <Text>date: {moment.utc(nowUTC).local().format('lll')}</Text>
 
       <Button onPress={addToCalendar} title="Add to calendar" />
       <TextInput
