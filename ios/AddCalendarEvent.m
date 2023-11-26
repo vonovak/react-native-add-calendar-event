@@ -84,21 +84,43 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
 {
     EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     
-    switch (status)
-    {
-        case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
-            break;
-        case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
-            break;
-        case EKAuthorizationStatusDenied:
-        case EKAuthorizationStatusRestricted:
-        {
-            [self rejectCalendarPermission];
-        }
-            break;
-        default:
-            [self rejectCalendarPermission];
-            break;
+    if (@available(iOS 17, *)) {
+        switch (status)
+            {
+                case EKAuthorizationStatusFullAccess: [self markCalendarAccessAsGranted];
+                    break;
+                case EKAuthorizationStatusWriteOnly: [self markCalendarAccessAsGranted];
+                    break;
+                case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
+                    break;
+                case EKAuthorizationStatusDenied:
+                case EKAuthorizationStatusRestricted:
+                {
+                    [self rejectCalendarPermission];
+                }
+                    break;
+                default:
+                    [self rejectCalendarPermission];
+                    break;
+            }
+    }
+    else {
+        switch (status)
+            {
+            case EKAuthorizationStatusAuthorized: [self markCalendarAccessAsGranted];
+                break;
+            case EKAuthorizationStatusNotDetermined: [self requestCalendarAccess];
+                break;
+            case EKAuthorizationStatusDenied:
+            case EKAuthorizationStatusRestricted:
+            {
+                [self rejectCalendarPermission];
+            }
+                break;
+            default:
+                [self rejectCalendarPermission];
+                break;
+         }
     }
 }
 
@@ -114,18 +136,33 @@ RCT_EXPORT_METHOD(requestCalendarPermission:(RCTPromiseResolveBlock)resolve reje
 }
 
 - (void)requestCalendarAccess
+
 {
     AddCalendarEvent * __weak weakSelf = self;
-    [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
-     {
-         dispatch_async(dispatch_get_main_queue(), ^{
-             if (granted) {
-                 [weakSelf markCalendarAccessAsGranted];
-             } else {
-                 [weakSelf rejectCalendarPermission];
-             }
-         });
-     }];
+    if (@available(iOS 17, *)) {
+        [[self getEventStoreInstance] requestWriteOnlyAccessToEventsWithCompletion:^(BOOL granted, NSError *error)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (granted) {
+                    [weakSelf markCalendarAccessAsGranted];
+                } else {
+                    [weakSelf rejectCalendarPermission];
+                }
+            });
+        }];
+    }
+    else {
+        [[self getEventStoreInstance] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (granted) {
+                    [weakSelf markCalendarAccessAsGranted];
+                } else {
+                    [weakSelf rejectCalendarPermission];
+                }
+            });
+        }];
+    }
 }
 
 #pragma mark -
