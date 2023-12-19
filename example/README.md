@@ -8,7 +8,12 @@ A simple example that shows how to add, view, and edit events with this library.
 
 npm install
 
+# Install patches for the test harness
+# https://github.com/vonovak/react-native-add-calendar-event/pull/181#issuecomment-1862323352
+yarn patch-package
+
 # Run in iOS
+# If you get build errors, you might have to build the ios/Example.xcworkspace project workspace from within XCode
 pod install --project-directory=ios
 npm run ios
 
@@ -75,21 +80,21 @@ end
 In order to add an event to a user's calendar, you first must request permissions:
 
 ```tsx
-import {Platform} from 'react-native';
+import { Platform } from "react-native";
 import {
   request,
   PERMISSIONS,
   RESULTS,
   Permission,
-} from 'react-native-permissions';
-import * as AddCalendarEvent from 'react-native-add-calendar-event';
+} from "react-native-permissions";
+import * as AddCalendarEvent from "react-native-add-calendar-event";
 
 request(
   Platform.select({
     ios: PERMISSIONS.IOS.CALENDARS_WRITE_ONLY,
     android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-  }) as Permission,
-).then(result => {
+  }) as Permission
+).then((result) => {
   if (result !== RESULTS.GRANTED) {
     throw new Error(`No permission: ${result}`);
   }

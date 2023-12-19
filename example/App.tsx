@@ -2,7 +2,7 @@
  * Sample React Native App with adding events to calendar
  */
 
-import React, {useState, useCallback} from 'react';
+import React, { useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,38 +10,38 @@ import {
   Button,
   TextInput,
   Platform,
-} from 'react-native';
+} from "react-native";
 import {
   request,
   PERMISSIONS,
   RESULTS,
   Permission,
-} from 'react-native-permissions';
-import * as AddCalendarEvent from 'react-native-add-calendar-event';
-import moment, {Moment} from 'moment';
+} from "react-native-permissions";
+import * as AddCalendarEvent from "react-native-add-calendar-event";
+import moment, { Moment } from "moment";
 
 const utcDateToString = (momentInUTC: Moment): string => {
-  let s = moment.utc(momentInUTC).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+  let s = moment.utc(momentInUTC).format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
   return s;
 };
 
 export default function EventDemo() {
-  const [eventId, setEventId] = useState('');
-  const [eventTitle] = useState('Lunch');
+  const [eventId, setEventId] = useState("");
+  const [eventTitle] = useState("Lunch");
   const [nowUTC] = useState(moment.utc());
 
   const addToCalendar = useCallback(() => {
     const eventConfig: AddCalendarEvent.CreateOptions = {
       title: eventTitle,
       startDate: utcDateToString(nowUTC),
-      endDate: utcDateToString(moment.utc(nowUTC).add(1, 'hours')),
-      notes: 'tasty!',
+      endDate: utcDateToString(moment.utc(nowUTC).add(1, "hours")),
+      notes: "tasty!",
       navigationBarIOS: {
         translucent: false,
-        tintColor: 'orange',
-        barTintColor: 'orange',
-        backgroundColor: 'green',
-        titleColor: 'blue',
+        tintColor: "orange",
+        barTintColor: "orange",
+        backgroundColor: "green",
+        titleColor: "blue",
       },
     };
 
@@ -49,22 +49,22 @@ export default function EventDemo() {
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
         android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-      }) as Permission,
+      }) as Permission
     )
-      .then(result => {
+      .then((result) => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
         }
         return AddCalendarEvent.presentEventCreatingDialog(eventConfig);
       })
-      .then(eventInfo => {
+      .then((eventInfo) => {
         // handle success - receives an object with `calendarItemIdentifier` and `eventIdentifier` keys, both of type string.
         // These are two different identifiers on iOS.
         // On Android, where they are both equal and represent the event id, also strings.
         // when { action: 'CANCELED' } is returned, the dialog was dismissed
         console.warn(JSON.stringify(eventInfo));
 
-        if ('eventIdentifier' in eventInfo) {
+        if ("eventIdentifier" in eventInfo) {
           setEventId(eventInfo.eventIdentifier);
         }
       })
@@ -83,15 +83,15 @@ export default function EventDemo() {
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
         android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-      }) as Permission,
+      }) as Permission
     )
-      .then(result => {
+      .then((result) => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
         }
         return AddCalendarEvent.presentEventEditingDialog(eventConfig);
       })
-      .then(eventInfo => {
+      .then((eventInfo) => {
         console.warn(JSON.stringify(eventInfo));
       })
       .catch((error: string) => {
@@ -107,10 +107,10 @@ export default function EventDemo() {
       allowsCalendarPreview: true,
       navigationBarIOS: {
         translucent: false,
-        tintColor: 'orange',
-        barTintColor: 'orange',
-        backgroundColor: 'green',
-        titleColor: 'blue',
+        tintColor: "orange",
+        barTintColor: "orange",
+        backgroundColor: "green",
+        titleColor: "blue",
       },
     };
 
@@ -118,15 +118,15 @@ export default function EventDemo() {
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
         android: PERMISSIONS.ANDROID.READ_CALENDAR,
-      }) as Permission,
+      }) as Permission
     )
-      .then(result => {
+      .then((result) => {
         if (result !== RESULTS.GRANTED) {
           throw new Error(`No permission: ${result}`);
         }
         return AddCalendarEvent.presentEventViewingDialog(eventConfig);
       })
-      .then(eventInfo => {
+      .then((eventInfo) => {
         console.warn(JSON.stringify(eventInfo));
       })
       .catch((error: string) => {
@@ -138,7 +138,7 @@ export default function EventDemo() {
   return (
     <View style={styles.container}>
       <Text style={styles.welcome}>Event title: {eventTitle}</Text>
-      <Text>date: {moment.utc(nowUTC).local().format('lll')}</Text>
+      <Text>date: {moment.utc(nowUTC).local().format("lll")}</Text>
 
       <Button onPress={addToCalendar} title="Add to calendar" />
       <TextInput
@@ -156,28 +156,28 @@ export default function EventDemo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
   },
   welcome: {
     fontSize: 20,
-    textAlign: 'center',
+    textAlign: "center",
     margin: 10,
   },
   instructions: {
-    textAlign: 'center',
-    color: '#333333',
+    textAlign: "center",
+    color: "#333333",
     marginBottom: 5,
   },
   input: {
     height: 40,
-    width: '80%',
+    width: "80%",
     marginTop: 30,
     padding: 10,
     marginHorizontal: 15,
     borderWidth: 1,
-    borderColor: '#666',
+    borderColor: "#666",
   },
   button: {
     marginVertical: 10,
