@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Example"
+rootProject.name = "add-calendar-event-example"
 
 apply(from: "../node_modules/react-native-test-app/test-app.gradle")
 applyTestAppSettings(settings)

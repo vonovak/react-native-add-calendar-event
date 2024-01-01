@@ -1,13 +1,15 @@
 {
   "name": "Example",
-  "displayName": "Example",
+  "displayName": "cal-events",
+  "singleApp": "defaultApp",
   "components": [
     {
       "appKey": "Example",
-      "displayName": "Example"
+      "displayName": "cal-events",
+      "slug": "defaultApp"
     }
   ],
-  "plugins": ["react-native-test-app/plugins/withPermissionConfig.js"],
+  "plugins": ["./withPermissionConfig.js"],
   "resources": {
     "android": ["dist/res", "dist/main.android.jsbundle"],
     "ios": ["dist/assets", "dist/main.ios.jsbundle"],

@@ -23,18 +23,43 @@ module.exports = (config) => {
   });
 
   // Android manifest permission configuration
-  updatedConfig = withAndroidManifest(updatedConfig, (config) => {
-    if (!config.android) {
-      config.android = {};
+  updatedConfig = withAndroidManifest(updatedConfig, async (config) => {
+    const androidManifest = config.modResults;
+    const permissions = androidManifest.manifest["uses-permission"] || [];
+
+    if (
+      !isPermissionAlreadyRequested(
+        "android.permission.READ_CALENDAR",
+        permissions
+      )
+    ) {
+      permissions.push({
+        $: {
+          "android:name": "android.permission.READ_CALENDAR",
+        },
+      });
     }
-    if (!config.android.permissions) {
-      config.android.permissions = [];
+    if (
+      !isPermissionAlreadyRequested(
+        "android.permission.WRITE_CALENDAR",
+        permissions
+      )
+    ) {
+      permissions.push({
+        $: {
+          "android:name": "android.permission.WRITE_CALENDAR",
+        },
+      });
     }
-    config.android.permissions.push("android.permission.WRITE_CALENDAR");
-    config.android.permissions.push("android.permission.READ_CALENDAR");
+
+    androidManifest.manifest["uses-permission"] = permissions;
 
     return config;
   });
 
   return updatedConfig;
 };
+
+function isPermissionAlreadyRequested(permission, manifestPermissions) {
+  return manifestPermissions.some((e) => e.$["android:name"] === permission);
+}

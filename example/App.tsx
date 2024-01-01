@@ -2,7 +2,7 @@
  * Sample React Native App with adding events to calendar
  */
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,12 +11,7 @@ import {
   TextInput,
   Platform,
 } from "react-native";
-import {
-  request,
-  PERMISSIONS,
-  RESULTS,
-  Permission,
-} from "react-native-permissions";
+import { request, PERMISSIONS, RESULTS } from "react-native-permissions";
 import * as AddCalendarEvent from "react-native-add-calendar-event";
 import moment, { Moment } from "moment";
 
@@ -29,6 +24,14 @@ export default function EventDemo() {
   const [eventId, setEventId] = useState("");
   const [eventTitle] = useState("Lunch");
   const [nowUTC] = useState(moment.utc());
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      request(PERMISSIONS.ANDROID.READ_CALENDAR).then((result) => {
+        console.warn(`android calendar read permission: ${result}`);
+      });
+    }
+  }, []);
 
   const addToCalendar = useCallback(() => {
     const eventConfig: AddCalendarEvent.CreateOptions = {
@@ -48,8 +51,8 @@ export default function EventDemo() {
     request(
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
-        android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-      }) as Permission
+        default: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+      })
     )
       .then((result) => {
         if (result !== RESULTS.GRANTED) {
@@ -82,8 +85,8 @@ export default function EventDemo() {
     request(
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
-        android: PERMISSIONS.ANDROID.WRITE_CALENDAR,
-      }) as Permission
+        default: PERMISSIONS.ANDROID.WRITE_CALENDAR,
+      })
     )
       .then((result) => {
         if (result !== RESULTS.GRANTED) {
@@ -117,8 +120,8 @@ export default function EventDemo() {
     request(
       Platform.select({
         ios: PERMISSIONS.IOS.CALENDARS,
-        android: PERMISSIONS.ANDROID.READ_CALENDAR,
-      }) as Permission
+        default: PERMISSIONS.ANDROID.READ_CALENDAR,
+      })
     )
       .then((result) => {
         if (result !== RESULTS.GRANTED) {

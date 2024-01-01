@@ -15,7 +15,7 @@
     "@expo/config-plugins": "^7.2.5",
     "moment": "^2.29.4",
     "react": "18.2.0",
-    "react-native": "0.72.7",
+    "react-native": "0.73.1",
     "react-native-add-calendar-event": "../",
     "react-native-permissions": "^4.0.1"
   },
@@ -37,9 +37,9 @@
     "prettier": "^2.4.1",
     "react-native-test-app": "^2.5.34",
     "react-test-renderer": "18.2.0",
-    "typescript": "4.8.4"
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=19"
   }
 }
