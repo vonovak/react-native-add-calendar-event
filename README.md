@@ -95,6 +95,7 @@ eventConfig object:
 | allDay           | boolean |                                                                     |
 | url              | String  | iOS only                                                            |
 | notes            | String  | The notes (iOS) or description (Android) associated with the event. |
+| attendees        | Array   | An array of attendees for the event. Each attendee should be an object with `name` and `email` properties. |
 | navigationBarIOS | Object  | config object for the navbar, see below                             |
 
 The dates passed to this module are strings. If you use moment, you may get the right format via `momentInUTC.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')` the string may look eg. like this: `'2017-09-25T08:00:00.000Z'`.
