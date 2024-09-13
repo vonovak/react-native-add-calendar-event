@@ -4,7 +4,7 @@ The author of this package does not use it in production and does not have free 
 
 # react-native-add-calendar-event
 
-This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its ID, or if it was removed. The functionality is provided through native modules and won't therefore work with Expo.
+This package alows you to start an activity (Android) or show a modal window (iOS) for adding, viewing or editing events in device's calendar. Through a promise, you can find out if a new event was added and get its ID, or if it was removed.
 
 For managing calendar events without the UI for user to interact with, see [react-native-calendar-events](https://github.com/wmcmahan/react-native-calendar-events).
 
