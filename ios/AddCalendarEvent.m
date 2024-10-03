@@ -50,6 +50,7 @@ static NSString *const _endDate = @"endDate";
 static NSString *const _notes = @"notes";
 static NSString *const _url = @"url";
 static NSString *const _allDay = @"allDay";
+static NSString *const _attendees = @"attendees";
 
 static NSString *const MODULE_NAME= @"AddCalendarEvent";
 
@@ -173,6 +174,30 @@ RCT_EXPORT_METHOD(presentEventEditingDialog:(NSDictionary *)options resolver:(RC
     }
     if (options[_allDay]) {
         event.allDay = [RCTConvert BOOL:options[_allDay]];
+    }
+    if (options[_attendees]) {
+        NSArray *invitees = [RCTConvert NSArray:options[_attendees]];
+
+        NSMutableArray *attendees = [NSMutableArray new];
+        for (int i = 0; i < [invitees count]; i++) {
+            Class className = NSClassFromString(@"EKAttendee");
+            id attendee = [className new];
+            NSDictionary *invitee = [invitees objectAtIndex:i];
+            NSString *name = [invitee valueForKey:@"name"];
+            NSString *email = [invitee valueForKey:@"email"];
+
+            [attendee setValue:email forKey:@"emailAddress"];
+            if(name && ![name isEqualToString:@"(null)"]) {
+                [attendee setValue:name forKey:@"firstName"];
+            }
+            else {
+                [attendee setValue:email forKey:@"firstName"];
+            }
+
+            [attendees addObject:attendee];
+        }
+
+        [event setValue:attendees forKey:_attendees];
     }
     return event;
 }
