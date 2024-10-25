@@ -1,6 +1,7 @@
 #### Maintenance notice
 
-The author of this package does not use it in production and does not have free time to maintain it. There are open issues that the author does not plan to fix. PRs may or may not be accepted. If you need help or do any development on the package, you can [hire the author](https://react-native-training.eu/). You can also maintain your own fork.
+> [!IMPORTANT]
+> This package has been deprecated in favor of [`expo-calendar`](https://docs.expo.dev/versions/v52.0.0/sdk/calendar/#launching-system-provided-calendar-dialogs) which provides the features of this package (and more) and does so in a better way. Please use the package provided by Expo. Thank you.
 
 # react-native-add-calendar-event
 
